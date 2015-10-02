@@ -1,0 +1,23 @@
+{
+  "name": "memcached-native",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "gypfile": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "compile": "node-gyp configure && node-gyp build"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bindings": "^1.2.1",
+    "nan": "^2.0.9"
+  },
+  "devDependencies": {
+    "istanbul": "^0.3.21",
+    "lodash": "^3.10.1",
+    "mocha": "^2.3.3",
+    "oa-ascync": "^1.0.0"
+  }
+}
