@@ -6,6 +6,7 @@
 #include <libmemcached/memcached.h>
 
 class Job;
+class MemcachedAsyncProgressWorker;
 
 namespace MemcachedNative {
 
@@ -21,15 +22,21 @@ private:
 	~Client();
 
 	static void New(const Nan::FunctionCallbackInfo<v8::Value>& info);
+
 	static void Start(const Nan::FunctionCallbackInfo<v8::Value>& info);
+	static void Stop(const Nan::FunctionCallbackInfo<v8::Value>& info);
+
 	static void Set(const Nan::FunctionCallbackInfo<v8::Value>& info);
+	static void Get(const Nan::FunctionCallbackInfo<v8::Value>& info);
+	static void Touch(const Nan::FunctionCallbackInfo<v8::Value>& info);
 
 	static Nan::Persistent<v8::Function> constructor;
 
-	memcached_st* client;
-
+	MemcachedAsyncProgressWorker* backgroundThread;
 public:
+	memcached_st* client;
 	std::set<Job*> jobs;
+	bool isRunning;
 };
 
 };
