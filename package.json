@@ -5,8 +5,9 @@
   "main": "index.js",
   "gypfile": true,
   "scripts": {
-    "test": "./node_modules/mocha/bin/mocha test",
-    "compile": "node-gyp configure && node-gyp build"
+    "mocha": "./node_modules/mocha/bin/mocha test",
+    "compile": "node-gyp configure && node-gyp build",
+    "test": "npm run compile && npm run mocha"
   },
   "author": "",
   "license": "ISC",
