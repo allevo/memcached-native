@@ -7,8 +7,11 @@ before_install:
   - sudo apt-get install make g++
   - wget https://launchpad.net/libmemcached/1.0/1.0.18/+download/libmemcached-1.0.18.tar.gz
   - ls
-  - tar -xzf libmemcached*.tar.gz
-  - cd libmemcached-1.0.18 && ./configure && make && sudo make install
+  - tar -xzf libmemcached-1.0.18.tar.gz
+  - cd libmemcached-1.0.18
+  - ! ./configure
+  - make
+  - sudo make install
 
 notifications:
   email:
