@@ -5,7 +5,7 @@ var spawn = require('child_process').spawn;
 var net = require('net');
 var async = require('async');
 
-var Client = require('../index');
+var Client = require('../index').Client;
 
 var PORT = 11212;
 function getAllItems(callback) {
