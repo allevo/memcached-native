@@ -18,6 +18,7 @@ before_install:
   - echo "Installing..."
   - sudo make install
   - echo "Installed"
+  - cd ..
 
 notifications:
   email:
