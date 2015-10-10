@@ -9,7 +9,7 @@ before_install:
 install:
   - echo "PASS..."
 script:
-  - docker run -it node/memcached-native memcached --help
+  - docker run -it node/memcached-native memcached -h
   - docker run -it node/memcached-native npm run docker-build
 
 notifications:
