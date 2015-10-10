@@ -8,7 +8,7 @@ before_install:
   - docker build -t node/memcached-native .
 install:
   - echo "PASS..."
-test:
+script:
   - docker run -it node/memcached-native npm run docker-build
 
 notifications:
