@@ -61,6 +61,7 @@ describe('memcached', function () {
     beforeEach(function(done) {
       memcachedServerProcess = spawn('memcached', ['-p', PORT + '', '-vvv', '-u', 'memcached']);
       memcachedServerProcess.stdout.on('data', console.log);
+      memcachedServerProcess.stderr.on('data', console.log);
       memcachedServerProcess.on('exit', console.log);
       setTimeout(done, 100);
     });
