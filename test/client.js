@@ -59,7 +59,7 @@ var memcachedClient;
 describe('memcached', function () {
   describe('client', function () {
     beforeEach(function(done) {
-      memcachedServerProcess = spawn('memcached', ['-p', PORT + '', '-vvv']);
+      memcachedServerProcess = spawn('memcached', ['-p', PORT + '', '-vvv', '-u', 'memcached']);
       setTimeout(done, 100);
     });
     afterEach(function() {

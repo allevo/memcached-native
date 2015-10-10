@@ -9,9 +9,16 @@ before_install:
   - ls
   - tar -xzf libmemcached-1.0.18.tar.gz
   - cd libmemcached-1.0.18
-  - ! ./configure
+  - echo "Configuring..."
+  - ./configure
+  - echo "Configured"
+  - echo "Making..."
   - make
+  - echo "Made"
+  - echo "Installing..."
   - sudo make install
+  - echo "Installed"
+  - cd ..
 
 notifications:
   email:
