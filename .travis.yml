@@ -1,24 +1,15 @@
 language: node_js
-node_js:
-  - "0.10"
+
+sudo: required
+services:
+  - docker
 
 before_install:
-  - sudo apt-get update
-  - sudo apt-get install make g++
-  - wget https://launchpad.net/libmemcached/1.0/1.0.18/+download/libmemcached-1.0.18.tar.gz
-  - ls
-  - tar -xzf libmemcached-1.0.18.tar.gz
-  - cd libmemcached-1.0.18
-  - echo "Configuring..."
-  - ./configure
-  - echo "Configured"
-  - echo "Making..."
-  - make
-  - echo "Made"
-  - echo "Installing..."
-  - sudo make install
-  - echo "Installed"
-  - cd ..
+  - docker build -t node/memcached-native .
+install:
+  - echo "PASS..."
+test:
+  - docker run -it node/memcached-native npm run docker-build
 
 notifications:
   email:
