@@ -59,7 +59,9 @@ var memcachedClient;
 describe('memcached', function () {
 
   it('should be able to start and stop memcached', function (done) {
-    var proc = spawn('memcached', ['-p', PORT + '', '-vvv']);
+    var proc = spawn('memcached', ['-p', '11213' + '', '-vvv']);
+    proc.stdout.on('data', console.log.bind(console, 'stdout %s'));
+    proc.stderr.on('data', console.log.bind(console, 'stderr %s'));
     setTimeout(function() {
       proc.kill();
       setTimeout(function() {
