@@ -66,7 +66,7 @@ describe('memcached', function () {
       setTimeout(done, 100);
     });
     afterEach(function stopMemcachedServerProcess() {
-      memcachedServerProcess.kill('SIGTERM');
+      memcachedServerProcess.kill();
     });
     beforeEach(function startMemcachedClient() {
       memcachedClient = new Client('--SERVER=localhost:' + PORT);
