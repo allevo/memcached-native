@@ -57,7 +57,18 @@ function getAllItems(callback) {
 var memcachedServerProcess;
 var memcachedClient;
 describe('memcached', function () {
-  describe('client', function () {
+
+  it('should be able to start and stop memcached', function (done) {
+    var proc = spawn('memcached', ['-p', PORT + '', '-vvv']);
+    setTimeout(function() {
+      proc.kill();
+      setTimeout(function() {
+        done();
+      }, 20);
+    }, 100);
+  });
+
+  xdescribe('client', function () {
     beforeEach(function startMemcachedServerProcess(done) {
       memcachedServerProcess = spawn('memcached', ['-p', PORT + '', '-vvv']);
       memcachedServerProcess.stdout.on('data', console.log.bind(console, 'stdout %s'));
