@@ -7,7 +7,7 @@
   "scripts": {
     "mocha": "./node_modules/mocha/bin/mocha test",
     "compile": "node-gyp configure && node-gyp build",
-    "docker-build": "npm install && npm test",
+    "docker-build": "npm test",
     "test": "npm run compile && npm run mocha"
   },
   "author": "",

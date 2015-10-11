@@ -62,11 +62,20 @@ describe('memcached', function () {
     var proc = spawn('memcached', ['-p', '11213' + '', '-vvv']);
     proc.stdout.on('data', console.log.bind(console, 'stdout %s'));
     proc.stderr.on('data', console.log.bind(console, 'stderr %s'));
+    proc.on('exit', console.log.bind(console, 'exit %d %s'));
     setTimeout(function() {
-      proc.kill();
+      var ps = spawn('ps', ['aux']);
+      ps.stdout.on('data', console.log.bind(console, 'ps %s'));
+
       setTimeout(function() {
-        done();
-      }, 20);
+
+        proc.kill();
+        setTimeout(function() {
+          done();
+        }, 20);
+
+      }, 200);
+
     }, 100);
   });
 
