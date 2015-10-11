@@ -58,23 +58,23 @@ var memcachedServerProcess;
 var memcachedClient;
 describe('memcached', function () {
   describe('client', function () {
-    beforeEach(function(done) {
+    beforeEach(function startMemcachedServerProcess(done) {
       memcachedServerProcess = spawn('memcached', ['-p', PORT + '', '-vvv']);
       memcachedServerProcess.stdout.on('data', console.log.bind(console, 'stdout %s'));
       memcachedServerProcess.stderr.on('data', console.log.bind(console, 'stderr %s'));
       memcachedServerProcess.on('exit', console.log);
       setTimeout(done, 100);
     });
-    afterEach(function() {
+    afterEach(function stopMemcachedServerProcess() {
       memcachedServerProcess.kill('SIGTERM');
     });
-    beforeEach(function() {
+    beforeEach(function startMemcachedClient() {
       memcachedClient = new Client('--SERVER=localhost:' + PORT);
       memcachedClient.start();
-    })
-    afterEach(function(done) {
+    });
+    afterEach(function stopMemcachedClient(done) {
       memcachedClient.stop(done);
-    })
+    });
     it('set should works fine', function(done) {
       memcachedClient.set('foo', 'value', 10, function(err) {
         assert.ifError(err);
