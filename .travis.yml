@@ -4,10 +4,9 @@ sudo: required
 services:
   - docker
 
-before_install:
-  - docker build -t node/memcached-native .
 install:
-  - echo "PASS..."
+  - docker build -t node/memcached-native .
+
 script:
   - docker run -it node/memcached-native memcached -h
   - docker run -it node/memcached-native npm run docker-build

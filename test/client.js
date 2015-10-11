@@ -59,7 +59,7 @@ var memcachedClient;
 describe('memcached', function () {
   describe('client', function () {
     beforeEach(function(done) {
-      memcachedServerProcess = spawn('memcached', ['-p', PORT + '', '-vvv', '-u', 'memcached']);
+      memcachedServerProcess = spawn('memcached', ['-p', PORT + '', '-vvv']);
       memcachedServerProcess.stdout.on('data', console.log.bind(console, 'stdout %s'));
       memcachedServerProcess.stderr.on('data', console.log.bind(console, 'stderr %s'));
       memcachedServerProcess.on('exit', console.log);
