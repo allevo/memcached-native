@@ -65,8 +65,11 @@ describe('memcached', function () {
       memcachedServerProcess.on('exit', console.log);
       setTimeout(done, 100);
     });
-    afterEach(function stopMemcachedServerProcess() {
-      memcachedServerProcess.kill();
+    afterEach(function stopMemcachedServerProcess(done) {
+      setTimeout(function() {
+        memcachedServerProcess.kill();
+        done();
+      }, 10);
     });
     beforeEach(function startMemcachedClient() {
       memcachedClient = new Client('--SERVER=localhost:' + PORT);
