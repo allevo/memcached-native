@@ -16,18 +16,14 @@ function getAllItems(callback) {
   });
 
   client.on('data', function(buf) {
-
     client.destroy();
 
-    console.log('DATA: ' + buf);
     var lines = buf.toString().split('\n');
     // remove end
     lines.pop();
-    // remove end
     lines.pop();
 
     async.map(lines, function(l, next) {
-      console.log('L', l);
       var matches = l.match(/^ITEM (\w+) \[\d b; (\d+) s\]/);
       var item = {
         key: matches[1],
@@ -35,7 +31,6 @@ function getAllItems(callback) {
       };
       var client2 = new net.Socket();
       client2.connect(PORT, HOST, function() {
-        console.log(item);
         client2.write('get ' + item.key + '\n');
       });
       client2.on('data', function(buf) {
@@ -62,7 +57,6 @@ describe('memcached', function () {
   describe('client', function () {
     beforeEach(function startMemcachedServerProcess(done) {
       var client = new net.Socket();
-      console.log(HOST, PORT);
       client.connect(PORT, HOST, function() {
         client.write('flush_all\n');
         client.destroy();
@@ -84,7 +78,6 @@ describe('memcached', function () {
           assert.ifError(err);
 
           var diff = items.foo.s - Math.round(Date.now() / 1000);
-          console.log(diff);
           assert.ok(diff < 11, 'Diff too high');
           assert.ok(diff > 8, 'Diff too low');
           assert.equal(items.foo.value, 'value');
@@ -107,7 +100,6 @@ describe('memcached', function () {
         }, 10);
       });
     });
-
 
     it('touch should works fine', function(done) {
       memcachedClient.set('foo', 'value', 10, function(err) {
