@@ -53,7 +53,6 @@ function getAllItems(callback) {
 var memcachedServerProcess;
 var memcachedClient;
 describe('memcached', function () {
-
   describe('client', function () {
     beforeEach(function startMemcachedServerProcess(done) {
       var client = new net.Socket();
@@ -78,8 +77,8 @@ describe('memcached', function () {
           assert.ifError(err);
 
           var diff = items.foo.s - Math.round(Date.now() / 1000);
-          assert.ok(diff < 11, 'Diff too high');
-          assert.ok(diff > 8, 'Diff too low');
+          assert.ok(diff < 11, 'Diff too high ' + diff);
+          assert.ok(diff > 5, 'Diff too low ' + diff);
           assert.equal(items.foo.value, 'value');
 
           done();
@@ -112,8 +111,8 @@ describe('memcached', function () {
               assert.ifError(err);
 
               var diff = items.foo.s - Math.round(Date.now() / 1000);
-              assert.ok(diff < 201, 'Diff too high');
-              assert.ok(diff > 198, 'Diff too low');
+              assert.ok(diff < 201, 'Diff too high ' + diff);
+              assert.ok(diff > 195, 'Diff too low ' + diff);
               done();
             });
           });

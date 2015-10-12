@@ -1,17 +1,18 @@
-#ifndef CLIENT_H
-#define CLIENT_H
+#ifndef NODEJS_MEMCACHED_CLIENT_H
+#define NODEJS_MEMCACHED_CLIENT_H
 
 #include <nan.h>
 #include <set>
 #include <libmemcached/memcached.h>
 
-class Job;
-class MemcachedAsyncProgressWorker;
+#include "Job/Base.hpp"
+#include "Job/SetJob.hpp"
+#include "Job/GetJob.hpp"
+#include "Job/TouchJob.hpp"
 
 namespace MemcachedNative {
 
-
-
+class MemcachedAsyncProgressWorker;
 
 class Client : public Nan::ObjectWrap {
 public:
@@ -35,7 +36,7 @@ private:
 	MemcachedAsyncProgressWorker* backgroundThread;
 public:
 	memcached_st* client;
-	std::set<Job*> jobs;
+	std::set<JobBase*> jobs;
 	bool isRunning;
 };
 

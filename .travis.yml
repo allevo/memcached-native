@@ -5,11 +5,12 @@ services:
   - docker
 
 install:
+  - docker -v
   - docker build -t node/memcached-native .
 
 script:
   - docker run --name my-memcache -d memcached
-  - docker run --link my-memcache:memcache -it node/memcached-native npm test
+  - docker run --link my-memcache:memcache -v $(pwd):/repos -it node/memcached-native npm run build-travis
 
 notifications:
   email:
