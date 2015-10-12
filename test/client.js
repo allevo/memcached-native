@@ -7,10 +7,11 @@ var async = require('async');
 
 var Client = require('../index').Client;
 
-var PORT = 11212;
+var PORT = parseInt(process.env.MEMCACHE_PORT_11211_TCP_PORT || '11211', 10);
+var HOST = process.env.MEMCACHE_PORT_11211_TCP_ADDR || '127.0.0.1';
 function getAllItems(callback) {
   var client = new net.Socket();
-  client.connect(PORT, '127.0.0.1', function() {
+  client.connect(PORT, HOST, function() {
     client.write('stats cachedump 1 100\n');
   });
 
@@ -33,7 +34,7 @@ function getAllItems(callback) {
         s: matches[2],
       };
       var client2 = new net.Socket();
-      client2.connect(PORT, '127.0.0.1', function() {
+      client2.connect(PORT, HOST, function() {
         console.log(item);
         client2.write('get ' + item.key + '\n');
       });
@@ -58,43 +59,18 @@ var memcachedServerProcess;
 var memcachedClient;
 describe('memcached', function () {
 
-  it('should be able to start and stop memcached', function (done) {
-    var proc = spawn('memcached', ['-p', '11213' + '', '-vvv']);
-    proc.stdout.on('data', console.log.bind(console, 'stdout %s'));
-    proc.stderr.on('data', console.log.bind(console, 'stderr %s'));
-    proc.on('exit', console.log.bind(console, 'exit %d %s'));
-    setTimeout(function() {
-      var ps = spawn('ps', ['aux']);
-      ps.stdout.on('data', console.log.bind(console, 'ps %s'));
-
-      setTimeout(function() {
-
-        proc.kill();
-        setTimeout(function() {
-          done();
-        }, 20);
-
-      }, 200);
-
-    }, 100);
-  });
-
-  xdescribe('client', function () {
+  describe('client', function () {
     beforeEach(function startMemcachedServerProcess(done) {
-      memcachedServerProcess = spawn('memcached', ['-p', PORT + '', '-vvv']);
-      memcachedServerProcess.stdout.on('data', console.log.bind(console, 'stdout %s'));
-      memcachedServerProcess.stderr.on('data', console.log.bind(console, 'stderr %s'));
-      memcachedServerProcess.on('exit', console.log);
-      setTimeout(done, 100);
-    });
-    afterEach(function stopMemcachedServerProcess(done) {
-      setTimeout(function() {
-        memcachedServerProcess.kill();
+      var client = new net.Socket();
+      console.log(HOST, PORT);
+      client.connect(PORT, HOST, function() {
+        client.write('flush_all\n');
+        client.destroy();
         done();
-      }, 10);
+      });
     });
     beforeEach(function startMemcachedClient() {
-      memcachedClient = new Client('--SERVER=localhost:' + PORT);
+      memcachedClient = new Client('--SERVER=' + HOST + ':' + PORT);
       memcachedClient.start();
     });
     afterEach(function stopMemcachedClient(done) {

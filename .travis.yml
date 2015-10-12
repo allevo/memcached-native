@@ -8,8 +8,8 @@ install:
   - docker build -t node/memcached-native .
 
 script:
-  - docker run -it node/memcached-native memcached -h
-  - docker run -it node/memcached-native npm run docker-build
+  - docker run --name my-memcache -d memcached
+  - docker run --link my-memcache:memcache -it node/memcached-native npm test
 
 notifications:
   email:
