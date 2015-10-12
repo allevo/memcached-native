@@ -7,34 +7,30 @@ var async = require('async');
 
 var Client = require('../index').Client;
 
-var PORT = 11212;
+var PORT = parseInt(process.env.MEMCACHE_PORT_11211_TCP_PORT || '11211', 10);
+var HOST = process.env.MEMCACHE_PORT_11211_TCP_ADDR || '127.0.0.1';
 function getAllItems(callback) {
   var client = new net.Socket();
-  client.connect(PORT, '127.0.0.1', function() {
+  client.connect(PORT, HOST, function() {
     client.write('stats cachedump 1 100\n');
   });
 
   client.on('data', function(buf) {
-
     client.destroy();
 
-    console.log('DATA: ' + buf);
     var lines = buf.toString().split('\n');
     // remove end
     lines.pop();
-    // remove end
     lines.pop();
 
     async.map(lines, function(l, next) {
-      console.log('L', l);
       var matches = l.match(/^ITEM (\w+) \[\d b; (\d+) s\]/);
       var item = {
         key: matches[1],
         s: matches[2],
       };
       var client2 = new net.Socket();
-      client2.connect(PORT, '127.0.0.1', function() {
-        console.log(item);
+      client2.connect(PORT, HOST, function() {
         client2.write('get ' + item.key + '\n');
       });
       client2.on('data', function(buf) {
@@ -58,20 +54,21 @@ var memcachedServerProcess;
 var memcachedClient;
 describe('memcached', function () {
   describe('client', function () {
-    beforeEach(function(done) {
-      memcachedServerProcess = spawn('memcached', ['-p', PORT + '', '-vvv', '-u', 'memcached']);
-      setTimeout(done, 100);
+    beforeEach(function startMemcachedServerProcess(done) {
+      var client = new net.Socket();
+      client.connect(PORT, HOST, function() {
+        client.write('flush_all\n');
+        client.destroy();
+        done();
+      });
     });
-    afterEach(function() {
-      memcachedServerProcess.kill('SIGTERM');
-    });
-    beforeEach(function() {
-      memcachedClient = new Client('--SERVER=localhost:' + PORT);
+    beforeEach(function startMemcachedClient() {
+      memcachedClient = new Client('--SERVER=' + HOST + ':' + PORT);
       memcachedClient.start();
-    })
-    afterEach(function(done) {
+    });
+    afterEach(function stopMemcachedClient(done) {
       memcachedClient.stop(done);
-    })
+    });
     it('set should works fine', function(done) {
       memcachedClient.set('foo', 'value', 10, function(err) {
         assert.ifError(err);
@@ -80,9 +77,8 @@ describe('memcached', function () {
           assert.ifError(err);
 
           var diff = items.foo.s - Math.round(Date.now() / 1000);
-          console.log(diff);
-          assert.ok(diff < 11, 'Diff too high');
-          assert.ok(diff > 8, 'Diff too low');
+          assert.ok(diff < 11, 'Diff too high ' + diff);
+          assert.ok(diff > 5, 'Diff too low ' + diff);
           assert.equal(items.foo.value, 'value');
 
           done();
@@ -104,7 +100,6 @@ describe('memcached', function () {
       });
     });
 
-
     it('touch should works fine', function(done) {
       memcachedClient.set('foo', 'value', 10, function(err) {
         assert.ifError(err);
@@ -116,8 +111,8 @@ describe('memcached', function () {
               assert.ifError(err);
 
               var diff = items.foo.s - Math.round(Date.now() / 1000);
-              assert.ok(diff < 201, 'Diff too high');
-              assert.ok(diff > 198, 'Diff too low');
+              assert.ok(diff < 201, 'Diff too high ' + diff);
+              assert.ok(diff > 195, 'Diff too low ' + diff);
               done();
             });
           });

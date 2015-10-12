@@ -1,14 +1,9 @@
 FROM node:0.10.40
 
-RUN mkdir /repos
-WORKDIR /repos
-ADD . /repos
-
 RUN apt-get update
-RUN apt-get install -y --force-yes libmemcached-dev memcached
+RUN apt-get install -y --force-yes libmemcached-dev memcached telnet
 
-RUN useradd -ms /bin/bash memcached
+WORKDIR /repos
 
-RUN ls
 
 
