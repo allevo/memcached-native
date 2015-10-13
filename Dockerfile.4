@@ -1,0 +1,10 @@
+FROM node:4
+
+RUN apt-get update
+RUN apt-get install -y --force-yes libmemcached-dev memcached telnet
+
+WORKDIR /repos
+RUN echo $FOO
+
+
+

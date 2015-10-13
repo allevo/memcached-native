@@ -36,4 +36,18 @@ describe('other', function () {
       assert.equal(true, index.isFatal(index.MEMCACHED_FAIL_UNIX_SOCKET));
     });
   });
+  describe('check_configuration', function () {
+    it('should go on if ok', function () {
+      index.check_configuration('--SERVER=localhost');
+    });
+    it('should throw an exception', function () {
+      try {
+        index.check_configuration('blablabla');
+        assert.fail();
+      } catch(e) {
+        assert.equal(Error, e.constructor);
+        assert.ok(/Error occured during parsing/.test(e.message));
+      }
+    });
+  });
 });

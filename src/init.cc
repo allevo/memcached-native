@@ -5,11 +5,12 @@
 #include "client.hpp"
 
 #define ADD_CONSTANT(exports, constantKey, constantValue) \
-	exports->Set( \
-		Nan::New(constantKey).ToLocalChecked(), \
-		Nan::New(constantValue), \
-		v8::ReadOnly \
-	);
+	Nan::ForceSet(exports,                                \
+		Nan::New(constantKey).ToLocalChecked(),           \
+		Nan::New(constantValue),                          \
+		v8::ReadOnly                                      \
+	);                                                    \
+	// END ADD_CONSTANT
 
 void addConstant(v8::Local<v8::Object> exports) {
 	ADD_CONSTANT(exports, "MEMCACHED_SUCCESS", MEMCACHED_SUCCESS);
@@ -85,6 +86,20 @@ void Fatal(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	info.GetReturnValue().Set(Nan::New(memcached_fatal(rc)));
 }
 
+void CheckConfiguration(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+	v8::String::Utf8Value param0(info[0]->ToString());
+	std::string param0String = std::string(*param0);
+	char* conf = (char*) malloc(param0String.length() * sizeof(char));
+	strcpy(conf, param0String.c_str());
+
+	char errorBuffer[2048];
+	memcached_return_t rc = libmemcached_check_configuration(conf, strlen(conf), errorBuffer, sizeof(errorBuffer));
+	if (!memcached_success(rc)) {
+		Nan::ThrowError(errorBuffer);
+	}
+	info.GetReturnValue().Set(Nan::Undefined());
+}
+
 void addUtilsFunction(v8::Local<v8::Object> exports) {
 	exports->Set(
 		Nan::New("strerror").ToLocalChecked(),
@@ -102,18 +117,16 @@ void addUtilsFunction(v8::Local<v8::Object> exports) {
 		Nan::New("isFatal").ToLocalChecked(),
 		Nan::New<v8::FunctionTemplate>(Fatal)->GetFunction()
 	);
+	exports->Set(
+		Nan::New("check_configuration").ToLocalChecked(),
+		Nan::New<v8::FunctionTemplate>(CheckConfiguration)->GetFunction()
+	);
 }
 
 void Init(v8::Local<v8::Object> exports) {
 	MemcachedNative::Client::Init(exports);
 	addConstant(exports);
 	addUtilsFunction(exports);
-	/*
-	exports->Set(
-		Nan::New("hello").ToLocalChecked(),
-		Nan::New<v8::FunctionTemplate>(Method)->GetFunction()
-	);
-	*/
 }
 
 NODE_MODULE(memcachedNative, Init)
