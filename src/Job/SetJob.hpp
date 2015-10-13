@@ -11,7 +11,7 @@ public:
 		: JobBase(client_, callback_), key(key_), value(value_), ttl(ttl_) { }
 
 	virtual void execute(memcached_st* memcached) {
-		printf("%s %s (%d): %s (%d) [%d s] \n", "SetJob execute", key, strlen(key), value, strlen(value), ttl);
+		printf("%s %s (%zu): %s (%zu) [%ld s] \n", "SetJob execute", key, strlen(key), value, strlen(value), (long int) ttl);
 		rc = memcached_set(memcached, key, strlen(key), value, strlen(value), ttl, (uint32_t)0);
 	}
 

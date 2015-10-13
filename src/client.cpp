@@ -1,6 +1,11 @@
 #include "client.hpp"
 
 #include "MemcachedAsyncProgressWorker.hpp"
+#include "Job/SetJob.hpp"
+#include "Job/GetJob.hpp"
+#include "Job/TouchJob.hpp"
+#include "Job/IncrementJob.hpp"
+#include "Job/DecrementJob.hpp"
 
 using namespace MemcachedNative;
 
@@ -37,6 +42,8 @@ void Client::Init(v8::Local<v8::Object> exports) {
 	Nan::SetPrototypeMethod(tpl, "get", Get);
 	Nan::SetPrototypeMethod(tpl, "stop", Stop);
 	Nan::SetPrototypeMethod(tpl, "touch", Touch);
+	Nan::SetPrototypeMethod(tpl, "increment", Increment);
+	Nan::SetPrototypeMethod(tpl, "decrement", Decrement);
 
 	constructor.Reset(tpl->GetFunction());
 	exports->Set(Nan::New("Client").ToLocalChecked(), tpl->GetFunction());
@@ -124,6 +131,42 @@ void Client::Touch(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Callback* callback = new Callback(info[2].As<v8::Function>());
 
 	JobBase* job = new TouchJob(memClient, callback, memcached_key, (int) ttl);
+	memClient->jobs.insert(job);
+
+	info.GetReturnValue().Set(Nan::Undefined());
+}
+
+void Client::Increment(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+	Client* memClient = ObjectWrap::Unwrap<Client>(info.Holder());
+
+	v8::String::Utf8Value param0(info[0]->ToString());
+	std::string param0String = std::string(*param0);
+	char* memcached_key = (char*) malloc(param0String.length() * sizeof(char));
+	strcpy(memcached_key, param0String.c_str());
+
+	uint32_t delta = info[1]->NumberValue();
+
+	Callback* callback = new Callback(info[2].As<v8::Function>());
+
+	JobBase* job = new IncrementJob(memClient, callback, memcached_key, delta);
+	memClient->jobs.insert(job);
+
+	info.GetReturnValue().Set(Nan::Undefined());
+}
+
+void Client::Decrement(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+	Client* memClient = ObjectWrap::Unwrap<Client>(info.Holder());
+
+	v8::String::Utf8Value param0(info[0]->ToString());
+	std::string param0String = std::string(*param0);
+	char* memcached_key = (char*) malloc(param0String.length() * sizeof(char));
+	strcpy(memcached_key, param0String.c_str());
+
+	uint32_t delta = info[1]->NumberValue();
+
+	Callback* callback = new Callback(info[2].As<v8::Function>());
+
+	JobBase* job = new DecrementJob(memClient, callback, memcached_key, delta);
 	memClient->jobs.insert(job);
 
 	info.GetReturnValue().Set(Nan::Undefined());

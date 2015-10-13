@@ -119,5 +119,45 @@ describe('memcached', function () {
         }, 10);
       });
     });
+
+    it('increment should works fine', function(done) {
+      memcachedClient.set('foo', 23, 10, function(err) {
+        assert.ifError(err);
+
+        setTimeout(function() {
+          memcachedClient.increment('foo', 40, function(err, finalValue) {
+            assert.ifError(err);
+            assert.equal(23 + 40, finalValue);
+
+            memcachedClient.get('foo', function(err, res) {
+              assert.ifError(err)
+              assert.equal(23 + 40, res);
+
+              done();
+            });
+          });
+        }, 10);
+      });
+    });
+
+    it('decrement should works fine', function(done) {
+      memcachedClient.set('foo', 23, 10, function(err) {
+        assert.ifError(err);
+
+        setTimeout(function() {
+          memcachedClient.decrement('foo', 3, function(err, finalValue) {
+            assert.ifError(err);
+            assert.equal(23 - 3, finalValue);
+
+            memcachedClient.get('foo', function(err, res) {
+              assert.ifError(err)
+              assert.equal(23 - 3, res);
+
+              done();
+            });
+          });
+        }, 10);
+      });
+    });
   });
 });

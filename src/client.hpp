@@ -6,9 +6,6 @@
 #include <libmemcached/memcached.h>
 
 #include "Job/Base.hpp"
-#include "Job/SetJob.hpp"
-#include "Job/GetJob.hpp"
-#include "Job/TouchJob.hpp"
 
 namespace MemcachedNative {
 
@@ -30,6 +27,8 @@ private:
 	static void Set(const Nan::FunctionCallbackInfo<v8::Value>& info);
 	static void Get(const Nan::FunctionCallbackInfo<v8::Value>& info);
 	static void Touch(const Nan::FunctionCallbackInfo<v8::Value>& info);
+	static void Increment(const Nan::FunctionCallbackInfo<v8::Value>& info);
+	static void Decrement(const Nan::FunctionCallbackInfo<v8::Value>& info);
 
 	static Nan::Persistent<v8::Function> constructor;
 
