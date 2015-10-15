@@ -9,6 +9,7 @@
 #include "Job/PrependJob.hpp"
 #include "Job/AppendJob.hpp"
 #include "Job/DeleteJob.hpp"
+#include "Job/ExistJob.hpp"
 
 using namespace MemcachedNative;
 
@@ -50,6 +51,7 @@ void Client::Init(v8::Local<v8::Object> exports) {
 	Nan::SetPrototypeMethod(tpl, "append", Append);
 	Nan::SetPrototypeMethod(tpl, "prepend", Prepend);
 	Nan::SetPrototypeMethod(tpl, "delete", Delete);
+	Nan::SetPrototypeMethod(tpl, "exist", Exist);
 
 	constructor.Reset(tpl->GetFunction());
 	exports->Set(Nan::New("Client").ToLocalChecked(), tpl->GetFunction());
@@ -233,6 +235,22 @@ void Client::Delete(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Callback* callback = new Callback(info[2].As<v8::Function>());
 
 	JobBase* job = new DeleteJob(memClient, callback, memcached_key, expirationTime);
+	memClient->jobs.insert(job);
+
+	info.GetReturnValue().Set(Nan::Undefined());
+}
+
+void Client::Exist(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+	Client* memClient = ObjectWrap::Unwrap<Client>(info.Holder());
+
+	v8::String::Utf8Value param0(info[0]->ToString());
+	std::string param0String = std::string(*param0);
+	char* memcached_key = (char*) malloc(param0String.length() * sizeof(char));
+	strcpy(memcached_key, param0String.c_str());
+
+	Callback* callback = new Callback(info[1].As<v8::Function>());
+
+	JobBase* job = new ExistJob(memClient, callback, memcached_key);
 	memClient->jobs.insert(job);
 
 	info.GetReturnValue().Set(Nan::Undefined());

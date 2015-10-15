@@ -239,5 +239,26 @@ describe('memcached', function () {
         });
       });
     });
+
+    it('exist should works fine', function(done) {
+      var key = getRandomString();
+      var value = getRandomString();
+      memcachedClient.set(key, value, 10, function(err) {
+        assert.ifError(err);
+
+        memcachedClient.exist(key, function(err, isExist) {
+          assert.ifError(err);
+
+          assert.equal(true, isExist);
+
+          memcachedClient.exist(key + '-foo', function(err, isExist) {
+            assert.ifError(err);
+
+            assert.equal(false, isExist);
+            done();
+          });
+        });
+      });
+    });
   });
 });
