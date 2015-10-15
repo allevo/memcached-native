@@ -29,6 +29,9 @@ private:
 	static void Touch(const Nan::FunctionCallbackInfo<v8::Value>& info);
 	static void Increment(const Nan::FunctionCallbackInfo<v8::Value>& info);
 	static void Decrement(const Nan::FunctionCallbackInfo<v8::Value>& info);
+	static void Prepend(const Nan::FunctionCallbackInfo<v8::Value>& info);
+	static void Append(const Nan::FunctionCallbackInfo<v8::Value>& info);
+	static void Delete(const Nan::FunctionCallbackInfo<v8::Value>& info);
 
 	static Nan::Persistent<v8::Function> constructor;
 

@@ -6,6 +6,9 @@
 #include "Job/TouchJob.hpp"
 #include "Job/IncrementJob.hpp"
 #include "Job/DecrementJob.hpp"
+#include "Job/PrependJob.hpp"
+#include "Job/AppendJob.hpp"
+#include "Job/DeleteJob.hpp"
 
 using namespace MemcachedNative;
 
@@ -44,6 +47,9 @@ void Client::Init(v8::Local<v8::Object> exports) {
 	Nan::SetPrototypeMethod(tpl, "touch", Touch);
 	Nan::SetPrototypeMethod(tpl, "increment", Increment);
 	Nan::SetPrototypeMethod(tpl, "decrement", Decrement);
+	Nan::SetPrototypeMethod(tpl, "append", Append);
+	Nan::SetPrototypeMethod(tpl, "prepend", Prepend);
+	Nan::SetPrototypeMethod(tpl, "delete", Delete);
 
 	constructor.Reset(tpl->GetFunction());
 	exports->Set(Nan::New("Client").ToLocalChecked(), tpl->GetFunction());
@@ -167,6 +173,66 @@ void Client::Decrement(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Callback* callback = new Callback(info[2].As<v8::Function>());
 
 	JobBase* job = new DecrementJob(memClient, callback, memcached_key, delta);
+	memClient->jobs.insert(job);
+
+	info.GetReturnValue().Set(Nan::Undefined());
+}
+
+void Client::Append(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+	Client* memClient = ObjectWrap::Unwrap<Client>(info.Holder());
+
+	v8::String::Utf8Value param0(info[0]->ToString());
+	std::string param0String = std::string(*param0);
+	char* memcached_key = (char*) malloc(param0String.length() * sizeof(char));
+	strcpy(memcached_key, param0String.c_str());
+
+	v8::String::Utf8Value param1(info[1]->ToString());
+	std::string param1String = std::string(*param1);
+	char* memcached_value = (char*) malloc(param1String.length() * sizeof(char));
+	strcpy(memcached_value, param1String.c_str());
+
+	Callback* callback = new Callback(info[2].As<v8::Function>());
+
+	JobBase* job = new AppendJob(memClient, callback, memcached_key, memcached_value);
+	memClient->jobs.insert(job);
+
+	info.GetReturnValue().Set(Nan::Undefined());
+}
+
+void Client::Prepend(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+	Client* memClient = ObjectWrap::Unwrap<Client>(info.Holder());
+
+	v8::String::Utf8Value param0(info[0]->ToString());
+	std::string param0String = std::string(*param0);
+	char* memcached_key = (char*) malloc(param0String.length() * sizeof(char));
+	strcpy(memcached_key, param0String.c_str());
+
+	v8::String::Utf8Value param1(info[1]->ToString());
+	std::string param1String = std::string(*param1);
+	char* memcached_value = (char*) malloc(param1String.length() * sizeof(char));
+	strcpy(memcached_value, param1String.c_str());
+
+	Callback* callback = new Callback(info[2].As<v8::Function>());
+
+	JobBase* job = new PrependJob(memClient, callback, memcached_key, memcached_value);
+	memClient->jobs.insert(job);
+
+	info.GetReturnValue().Set(Nan::Undefined());
+}
+
+void Client::Delete(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+	Client* memClient = ObjectWrap::Unwrap<Client>(info.Holder());
+
+	v8::String::Utf8Value param0(info[0]->ToString());
+	std::string param0String = std::string(*param0);
+	char* memcached_key = (char*) malloc(param0String.length() * sizeof(char));
+	strcpy(memcached_key, param0String.c_str());
+
+	uint32_t expirationTime = info[1]->NumberValue();
+
+	Callback* callback = new Callback(info[2].As<v8::Function>());
+
+	JobBase* job = new DeleteJob(memClient, callback, memcached_key, expirationTime);
 	memClient->jobs.insert(job);
 
 	info.GetReturnValue().Set(Nan::Undefined());

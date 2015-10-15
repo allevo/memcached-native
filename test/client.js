@@ -4,8 +4,18 @@ var assert = require('assert');
 var spawn = require('child_process').spawn;
 var net = require('net');
 var async = require('async');
+var crypto = require('crypto');
 
 var Client = require('../index').Client;
+
+function getRandomString() {
+  var alphabeth = 'qwertyuiopasdfghjklzxcvbnm'.split('');
+  var s = '';
+  for(var i = 0; i < 5; i++) {
+    s += alphabeth[crypto.pseudoRandomBytes(1)[0] % alphabeth.length];
+  }
+  return s;
+}
 
 var PORT = parseInt(process.env.MEMCACHE_PORT_11211_TCP_PORT || '11211', 10);
 var HOST = process.env.MEMCACHE_PORT_11211_TCP_ADDR || '127.0.0.1';
@@ -69,17 +79,20 @@ describe('memcached', function () {
     afterEach(function stopMemcachedClient(done) {
       memcachedClient.stop(done);
     });
+
     it('set should works fine', function(done) {
-      memcachedClient.set('foo', 'value', 10, function(err) {
+      var key = getRandomString();
+      var value = getRandomString();
+      memcachedClient.set(key, value, 10, function(err) {
         assert.ifError(err);
 
         getAllItems(function(err, items) {
           assert.ifError(err);
 
-          var diff = items.foo.s - Math.round(Date.now() / 1000);
+          var diff = items[key].s - Math.round(Date.now() / 1000);
           assert.ok(diff < 11, 'Diff too high ' + diff);
           assert.ok(diff > 5, 'Diff too low ' + diff);
-          assert.equal(items.foo.value, 'value');
+          assert.equal(items[key].value, value);
 
           done();
         });
@@ -87,13 +100,15 @@ describe('memcached', function () {
     });
 
     it('get should works fine', function(done) {
-      memcachedClient.set('foo', 'value', 10, function(err) {
+      var key = getRandomString();
+      var value = getRandomString();
+      memcachedClient.set(key, value, 10, function(err) {
         assert.ifError(err);
 
         setTimeout(function() {
-          memcachedClient.get('foo', function(err, data) {
+          memcachedClient.get(key, function(err, data) {
             assert.ifError(err);
-            assert.equal(data, 'value');
+            assert.equal(data, value);
             done();
           });
         }, 10);
@@ -101,16 +116,18 @@ describe('memcached', function () {
     });
 
     it('touch should works fine', function(done) {
-      memcachedClient.set('foo', 'value', 10, function(err) {
+      var key = getRandomString();
+      var value = getRandomString();
+      memcachedClient.set(key, value, 10, function(err) {
         assert.ifError(err);
 
         setTimeout(function() {
-          memcachedClient.touch('foo', 200, function(err) {
+          memcachedClient.touch(key, 200, function(err) {
 
             getAllItems(function(err, items) {
               assert.ifError(err);
 
-              var diff = items.foo.s - Math.round(Date.now() / 1000);
+              var diff = items[key].s - Math.round(Date.now() / 1000);
               assert.ok(diff < 201, 'Diff too high ' + diff);
               assert.ok(diff > 195, 'Diff too low ' + diff);
               done();
@@ -121,15 +138,16 @@ describe('memcached', function () {
     });
 
     it('increment should works fine', function(done) {
-      memcachedClient.set('foo', 23, 10, function(err) {
+      var key = getRandomString();
+      memcachedClient.set(key, 23, 10, function(err) {
         assert.ifError(err);
 
         setTimeout(function() {
-          memcachedClient.increment('foo', 40, function(err, finalValue) {
+          memcachedClient.increment(key, 40, function(err, finalValue) {
             assert.ifError(err);
             assert.equal(23 + 40, finalValue);
 
-            memcachedClient.get('foo', function(err, res) {
+            memcachedClient.get(key, function(err, res) {
               assert.ifError(err)
               assert.equal(23 + 40, res);
 
@@ -141,15 +159,16 @@ describe('memcached', function () {
     });
 
     it('decrement should works fine', function(done) {
-      memcachedClient.set('foo', 23, 10, function(err) {
+      var key = getRandomString();
+      memcachedClient.set(key, 23, 10, function(err) {
         assert.ifError(err);
 
         setTimeout(function() {
-          memcachedClient.decrement('foo', 3, function(err, finalValue) {
+          memcachedClient.decrement(key, 3, function(err, finalValue) {
             assert.ifError(err);
             assert.equal(23 - 3, finalValue);
 
-            memcachedClient.get('foo', function(err, res) {
+            memcachedClient.get(key, function(err, res) {
               assert.ifError(err)
               assert.equal(23 - 3, res);
 
@@ -157,6 +176,67 @@ describe('memcached', function () {
             });
           });
         }, 10);
+      });
+    });
+
+    it('append should works fine', function(done) {
+      var key = getRandomString();
+      var value = getRandomString();
+      memcachedClient.set(key, value, 10, function(err) {
+        assert.ifError(err);
+
+        memcachedClient.append(key, '-suffix', function(err) {
+          console.log(err);
+          assert.ifError(err);
+
+          memcachedClient.get(key, function(err, res) {
+            assert.ifError(err)
+
+            assert.equal(value + '-suffix', res);
+
+            done();
+          });
+        });
+      });
+    });
+
+    it('prepend should works fine', function(done) {
+      var key = getRandomString();
+      var value = getRandomString();
+      memcachedClient.set(key, value, 10, function(err) {
+        assert.ifError(err);
+
+        memcachedClient.prepend(key, 'prefix-', function(err) {
+          assert.ifError(err);
+
+          memcachedClient.get(key, function(err, res) {
+            assert.ifError(err)
+
+            assert.equal('prefix-' + value, res);
+
+            done();
+          });
+        });
+      });
+    });
+
+    it('delete should works fine', function(done) {
+      var key = getRandomString();
+      var value = getRandomString();
+      memcachedClient.set(key, value, 10, function(err) {
+        assert.ifError(err);
+
+        memcachedClient.delete(key, 0, function(err) {
+          assert.ifError(err);
+
+          memcachedClient.get(key, function(err, res) {
+            assert.equal(err.message, 'NOT FOUND');
+            assert.equal(err.code, 'NOT FOUND');
+            assert.equal(err.errno, require('../index').MEMCACHED_NOTFOUND);
+
+            done();
+          });
+        });
       });
     });
   });
