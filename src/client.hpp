@@ -33,6 +33,7 @@ private:
 	static void Append(const Nan::FunctionCallbackInfo<v8::Value>& info);
 	static void Delete(const Nan::FunctionCallbackInfo<v8::Value>& info);
 	static void Exist(const Nan::FunctionCallbackInfo<v8::Value>& info);
+	static void Replace(const Nan::FunctionCallbackInfo<v8::Value>& info);
 
 	static Nan::Persistent<v8::Function> constructor;
 

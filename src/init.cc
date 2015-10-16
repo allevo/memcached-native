@@ -100,6 +100,10 @@ void CheckConfiguration(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	info.GetReturnValue().Set(Nan::Undefined());
 }
 
+void LibVersion(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+	info.GetReturnValue().Set(Nan::New(memcached_lib_version()).ToLocalChecked());
+}
+
 void addUtilsFunction(v8::Local<v8::Object> exports) {
 	exports->Set(
 		Nan::New("strerror").ToLocalChecked(),
@@ -120,6 +124,10 @@ void addUtilsFunction(v8::Local<v8::Object> exports) {
 	exports->Set(
 		Nan::New("check_configuration").ToLocalChecked(),
 		Nan::New<v8::FunctionTemplate>(CheckConfiguration)->GetFunction()
+	);
+	exports->Set(
+		Nan::New("lib_version").ToLocalChecked(),
+		Nan::New<v8::FunctionTemplate>(LibVersion)->GetFunction()
 	);
 }
 

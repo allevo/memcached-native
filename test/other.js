@@ -36,6 +36,11 @@ describe('other', function () {
       assert.equal(true, index.isFatal(index.MEMCACHED_FAIL_UNIX_SOCKET));
     });
   });
+  describe('lib_version', function () {
+    it('should be exported', function () {
+      assert.ok(/\d+\.\d+\.\d+/.test(index.lib_version()));
+    });
+  });
   describe('check_configuration', function () {
     it('should go on if ok', function () {
       index.check_configuration('--SERVER=localhost');

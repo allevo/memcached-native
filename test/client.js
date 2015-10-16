@@ -260,5 +260,25 @@ describe('memcached', function () {
         });
       });
     });
+
+    it('replace should works fine', function(done) {
+      var key = getRandomString();
+      var value = getRandomString();
+      memcachedClient.set(key, value, 10, function(err) {
+        assert.ifError(err);
+
+        var value2 = getRandomString();
+        memcachedClient.replace(key, value2, 10, function(err) {
+          assert.ifError(err);
+
+          memcachedClient.get(key, function(err, val) {
+            assert.ifError(err);
+
+            assert.equal(value2, val);
+            done();
+          });
+        });
+      });
+    });
   });
 });

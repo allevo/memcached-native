@@ -10,6 +10,7 @@
 #include "Job/AppendJob.hpp"
 #include "Job/DeleteJob.hpp"
 #include "Job/ExistJob.hpp"
+#include "Job/ReplaceJob.hpp"
 
 using namespace MemcachedNative;
 
@@ -52,6 +53,7 @@ void Client::Init(v8::Local<v8::Object> exports) {
 	Nan::SetPrototypeMethod(tpl, "prepend", Prepend);
 	Nan::SetPrototypeMethod(tpl, "delete", Delete);
 	Nan::SetPrototypeMethod(tpl, "exist", Exist);
+	Nan::SetPrototypeMethod(tpl, "replace", Replace);
 
 	constructor.Reset(tpl->GetFunction());
 	exports->Set(Nan::New("Client").ToLocalChecked(), tpl->GetFunction());
@@ -251,6 +253,29 @@ void Client::Exist(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Callback* callback = new Callback(info[1].As<v8::Function>());
 
 	JobBase* job = new ExistJob(memClient, callback, memcached_key);
+	memClient->jobs.insert(job);
+
+	info.GetReturnValue().Set(Nan::Undefined());
+}
+
+void Client::Replace(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+	Client* memClient = ObjectWrap::Unwrap<Client>(info.Holder());
+
+	v8::String::Utf8Value param0(info[0]->ToString());
+	std::string param0String = std::string(*param0);
+	char* memcached_key = (char*) malloc(param0String.length() * sizeof(char));
+	strcpy(memcached_key, param0String.c_str());
+
+	v8::String::Utf8Value param1(info[1]->ToString());
+	std::string param1String = std::string(*param1);
+	char* memcached_value = (char*) malloc(param1String.length() * sizeof(char));
+	strcpy(memcached_value, param1String.c_str());
+
+	double ttl = info[2]->NumberValue();
+
+	Callback* callback = new Callback(info[3].As<v8::Function>());
+
+	JobBase* job = new ReplaceJob(memClient, callback, memcached_key, memcached_value, (int) ttl);
 	memClient->jobs.insert(job);
 
 	info.GetReturnValue().Set(Nan::Undefined());
