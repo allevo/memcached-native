@@ -280,6 +280,31 @@ describe('memcached', function () {
       });
     });
 
+    it('cas should work fine', function(done) {
+      var key = getRandomString();
+      var value = getRandomString();
+
+      memcachedClient.set(key, value, 10, function(err) {
+      assert.ifError(err);
+      memcachedClient.mget_and_fetch_all([key], function(err, results) {
+      assert.ifError(err);
+
+        var newValue = getRandomString();
+        memcachedClient.cas(key, newValue, 30, results[key].cas, function(err) {
+          assert.ifError(err);
+
+          memcachedClient.get(key, function(err, value) {
+            assert.ifError(err);
+
+            assert.equal(value, newValue);
+
+            done();
+          });
+        });
+      });
+      });
+    });
+
     it('mget and fetch_result should work fine', function(done) {
       var keys = [
         getRandomString(),

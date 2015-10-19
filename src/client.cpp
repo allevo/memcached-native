@@ -11,6 +11,7 @@
 #include "Job/DeleteJob.hpp"
 #include "Job/ExistJob.hpp"
 #include "Job/ReplaceJob.hpp"
+#include "Job/CasJob.hpp"
 #include "Job/MGetJob.hpp"
 #include "Job/FetchResultJob.hpp"
 #include "Job/MGetAndFetchAllJob.hpp"
@@ -57,6 +58,7 @@ void Client::Init(v8::Local<v8::Object> exports) {
 	Nan::SetPrototypeMethod(tpl, "delete", Delete);
 	Nan::SetPrototypeMethod(tpl, "exist", Exist);
 	Nan::SetPrototypeMethod(tpl, "replace", Replace);
+	Nan::SetPrototypeMethod(tpl, "cas", Cas);
 	Nan::SetPrototypeMethod(tpl, "mget", MGet);
 	Nan::SetPrototypeMethod(tpl, "fetch_result", FetchResult);
 	Nan::SetPrototypeMethod(tpl, "mget_and_fetch_all", MGetAndFetchAll);
@@ -281,7 +283,32 @@ void Client::Replace(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 
 	Callback* callback = new Callback(info[3].As<v8::Function>());
 
-	JobBase* job = new ReplaceJob(memClient, callback, memcached_key, memcached_value, (int) ttl);
+	JobBase* job = new ReplaceJob(memClient, callback, memcached_key, memcached_value, (time_t) ttl);
+	memClient->jobs.insert(job);
+
+	info.GetReturnValue().Set(Nan::Undefined());
+}
+
+void Client::Cas(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+	Client* memClient = ObjectWrap::Unwrap<Client>(info.Holder());
+
+	v8::String::Utf8Value param0(info[0]->ToString());
+	std::string param0String = std::string(*param0);
+	char* memcached_key = (char*) malloc(param0String.length() * sizeof(char));
+	strcpy(memcached_key, param0String.c_str());
+
+	v8::String::Utf8Value param1(info[1]->ToString());
+	std::string param1String = std::string(*param1);
+	char* memcached_value = (char*) malloc(param1String.length() * sizeof(char));
+	strcpy(memcached_value, param1String.c_str());
+
+	double ttl = info[2]->NumberValue();
+
+	uint32_t cas = (*info[3]->ToUint32())->Value();
+
+	Callback* callback = new Callback(info[4].As<v8::Function>());
+
+	JobBase* job = new CasJob(memClient, callback, memcached_key, memcached_value, (time_t) ttl, cas);
 	memClient->jobs.insert(job);
 
 	info.GetReturnValue().Set(Nan::Undefined());
