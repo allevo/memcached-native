@@ -39,13 +39,17 @@ private:
 	static void FetchResult(const Nan::FunctionCallbackInfo<v8::Value>& info);
 	static void MGetAndFetchAll(const Nan::FunctionCallbackInfo<v8::Value>& info);
 
+	static void Debug(const Nan::FunctionCallbackInfo<v8::Value>& info);
+
 	static Nan::Persistent<v8::Function> constructor;
 
 	MemcachedAsyncProgressWorker* backgroundThread;
+
 public:
 	memcached_st* client;
 	std::set<JobBase*> jobs;
 	bool isRunning;
+	bool debug;
 };
 
 };

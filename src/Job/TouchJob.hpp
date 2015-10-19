@@ -10,14 +10,14 @@ public:
 	explicit TouchJob(MemcachedNative::Client*& client_, Callback* callback_, char* key_, time_t ttl_)
 		: JobBase(client_, callback_), key(key_), ttl(ttl_) { }
 
-	virtual void execute(memcached_st* memcached) {
-		printf("%s %s (%zu) [%ld s]\n", "TouchJob execute", key, strlen(key), (long int) ttl);
+	virtual void execute(memcached_st* mem) {
+		this->debug && printf("%s %s (%zu) [%ld s]\n", "TouchJob execute", key, strlen(key), (long int) ttl);
 
-		rc = memcached_touch(memcached, key, strlen(key), ttl);
+		rc = memcached_touch(mem, key, strlen(key), ttl);
 	}
 
 	virtual ~TouchJob() {
-		printf("%s\n", "TouchJob deconstructor");
+		this->debug && printf("%s\n", "TouchJob deconstructor");
 		delete key;
 	}
 

@@ -10,13 +10,13 @@ public:
 	explicit DeleteJob(MemcachedNative::Client*& client_, Callback* callback_, char* key_, uint32_t expiration_time_)
 		: JobBase(client_, callback_), key(key_), expiration_time(expiration_time_) { }
 
-	virtual void execute(memcached_st* memcached) {
-		printf("%s %s (%zu): %u\n", "DeleteJob execute", key, strlen(key), expiration_time);
-		rc = memcached_delete(memcached, key, strlen(key), expiration_time);
+	virtual void execute(memcached_st* mem) {
+		this->debug && printf("%s %s (%zu): %u\n", "DeleteJob execute", key, strlen(key), expiration_time);
+		rc = memcached_delete(mem, key, strlen(key), expiration_time);
 	}
 
 	virtual ~DeleteJob() {
-		printf("%s\n", "DeleteJob deconstructor");
+		this->debug && printf("%s\n", "DeleteJob deconstructor");
 		delete key;
 	}
 

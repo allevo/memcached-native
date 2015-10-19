@@ -10,14 +10,13 @@ public:
 	explicit ExistJob(MemcachedNative::Client*& client_, Callback* callback_, char* key_)
 		: JobBase(client_, callback_), key(key_) { }
 
-	virtual void execute(memcached_st* memcached) {
-		printf("%s %s (%zu)\n", "ExistJob execute", key, strlen(key));
-
-		rc = memcached_exist(memcached, key, strlen(key));
+	virtual void execute(memcached_st* mem) {
+		this->debug && printf("%s %s (%zu)\n", "ExistJob execute", key, strlen(key));
+		rc = memcached_exist(mem, key, strlen(key));
 	}
 
 	virtual ~ExistJob() {
-		printf("%s\n", "ExistJob deconstructor");
+		this->debug && printf("%s\n", "ExistJob deconstructor");
 		delete key;
 	}
 

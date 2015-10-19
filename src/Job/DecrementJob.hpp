@@ -10,13 +10,13 @@ public:
 	explicit DecrementJob(MemcachedNative::Client*& client_, Callback* callback_, char* key_, uint32_t delta_)
 		: JobBase(client_, callback_), key(key_), delta(delta_) { }
 
-	virtual void execute(memcached_st* memcached) {
-		printf("%s %s (%zu): %d\n", "DecrementJob execute", key, strlen(key), delta);
-		rc = memcached_decrement(memcached, key, strlen(key), delta, &finalValue);
+	virtual void execute(memcached_st* mem) {
+		this->debug && printf("%s %s (%zu): %d\n", "DecrementJob execute", key, strlen(key), delta);
+		rc = memcached_decrement(mem, key, strlen(key), delta, &finalValue);
 	}
 
 	virtual ~DecrementJob() {
-		printf("%s\n", "DecrementJob deconstructor");
+		this->debug && printf("%s\n", "DecrementJob deconstructor");
 		delete key;
 	}
 

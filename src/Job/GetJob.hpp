@@ -10,18 +10,18 @@ public:
 	explicit GetJob(MemcachedNative::Client*& client_, Callback* callback_, char* key_)
 		: JobBase(client_, callback_), key(key_), value(NULL) { }
 
-	virtual void execute(memcached_st* memcached) {
-		printf("%s\n", "GetJob execute");
+	virtual void execute(memcached_st* mem) {
+		this->debug && printf("%s\n", "GetJob execute");
 
 		uint32_t flags = 0;
 		size_t value_length= 0;
-		value = memcached_get(memcached, key, strlen(key), &value_length, &flags, &rc);
+		value = memcached_get(mem, key, strlen(key), &value_length, &flags, &rc);
 
-		printf("%s %s %d %zu\n", "GetJob executed", value, flags, value_length);
+		this->debug && printf("%s %s %d %zu\n", "GetJob executed", value, flags, value_length);
 	}
 
 	virtual ~GetJob() {
-		printf("%s\n", "GetJob deconstructor");
+		this->debug && printf("%s\n", "GetJob deconstructor");
 		delete key;
 	}
 

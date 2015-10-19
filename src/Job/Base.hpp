@@ -19,7 +19,7 @@ class Client;
 class JobBase {
 public:
 	explicit JobBase(MemcachedNative::Client*& client_, Callback* callback_)
-		: client(client_), callback(callback_), isDone(false) { }
+		: client(client_), callback(callback_), isDone(false), debug(false) { }
 
 	virtual ~JobBase() { }
 
@@ -37,6 +37,10 @@ public:
 		return error;
 	}
 
+	virtual void setDebug(bool debug_) {
+		debug = debug_;
+	}
+
 private:
 	MemcachedNative::Client* client;
 
@@ -46,6 +50,8 @@ public:
 
 protected:
 	memcached_return_t rc;
+
+	bool debug;
 };
 
 };

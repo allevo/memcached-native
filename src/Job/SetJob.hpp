@@ -10,13 +10,13 @@ public:
 	explicit SetJob(MemcachedNative::Client*& client_, Callback* callback_, char* key_, char* value_, time_t ttl_)
 		: JobBase(client_, callback_), key(key_), value(value_), ttl(ttl_) { }
 
-	virtual void execute(memcached_st* memcached) {
-		printf("%s %s (%zu): %s (%zu) [%ld s] \n", "SetJob execute", key, strlen(key), value, strlen(value), (long int) ttl);
-		rc = memcached_set(memcached, key, strlen(key), value, strlen(value), ttl, (uint32_t)0);
+	virtual void execute(memcached_st* mem) {
+		this->debug && printf("%s %s (%zu): %s (%zu) [%ld s] \n", "SetJob execute", key, strlen(key), value, strlen(value), (long int) ttl);
+		rc = memcached_set(mem, key, strlen(key), value, strlen(value), ttl, (uint32_t)0);
 	}
 
 	virtual ~SetJob() {
-		printf("%s\n", "SetJob deconstructor");
+		this->debug && printf("%s\n", "SetJob deconstructor");
 		delete key;
 		delete value;
 	}

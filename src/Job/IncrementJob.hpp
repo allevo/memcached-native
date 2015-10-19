@@ -10,13 +10,13 @@ public:
 	explicit IncrementJob(MemcachedNative::Client*& client_, Callback* callback_, char* key_, uint32_t delta_)
 		: JobBase(client_, callback_), key(key_), delta(delta_) { }
 
-	virtual void execute(memcached_st* memcached) {
-		printf("%s %s (%zu): %d\n", "IncrementJob execute", key, strlen(key), delta);
-		rc = memcached_increment(memcached, key, strlen(key), delta, &finalValue);
+	virtual void execute(memcached_st* mem) {
+		this->debug && printf("%s %s (%zu): %d\n", "IncrementJob execute", key, strlen(key), delta);
+		rc = memcached_increment(mem, key, strlen(key), delta, &finalValue);
 	}
 
 	virtual ~IncrementJob() {
-		printf("%s\n", "IncrementJob deconstructor");
+		this->debug && printf("%s\n", "IncrementJob deconstructor");
 		delete key;
 	}
 

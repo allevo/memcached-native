@@ -25,13 +25,14 @@ class MemcachedAsyncProgressWorker : public AsyncProgressWorker {
 public:
 	explicit MemcachedAsyncProgressWorker(Client* client_, Callback* callback_) :
 		AsyncProgressWorker(callback_),
-		client(client_)
+		client(client_),
+		debug(false)
 	{
-		printf("%s\n", "CREATE MemcachedAsyncProgressWorker");
+		debug && printf("%s\n", "CREATE MemcachedAsyncProgressWorker");
 	}
 
 	virtual void Execute(const ExecutionProgress& progress) {
-		printf("%s\n", "Execute MemcachedAsyncProgressWorker");
+		debug && printf("%s\n", "Execute MemcachedAsyncProgressWorker");
 
 		while(client->isRunning) {
 			usleep(10 * 1000);
@@ -75,8 +76,13 @@ public:
 		callback = callback_;
 	}
 
+	void setDebug(bool debug_) {
+		debug = debug_;
+	}
+
 private:
 	Client* client;
+	bool debug;
 };
 
 

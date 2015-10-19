@@ -12,13 +12,13 @@ public:
 	explicit MGetAndFetchAllJob(MemcachedNative::Client*& client_, Callback* callback_, char** keys_, size_t number_of_keys_)
 		: JobBase(client_, callback_), MGetJob(client_, callback_, keys_, number_of_keys_), FetchResultJob(client_, callback_) { }
 
-	virtual void execute(memcached_st* memcached) {
-		MGetJob::execute(memcached);
-		FetchResultJob::execute(memcached);
+	virtual void execute(memcached_st* mem) {
+		MGetJob::execute(mem);
+		FetchResultJob::execute(mem);
 	}
 
 	virtual ~MGetAndFetchAllJob() {
-		printf("%s\n", "MGetAndFetchAllJob deconstructor");
+		this->debug && printf("%s\n", "MGetAndFetchAllJob deconstructor");
 	}
 
 	virtual Local<Value> getResult() {

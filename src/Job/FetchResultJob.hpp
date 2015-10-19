@@ -14,18 +14,18 @@ public:
 	explicit FetchResultJob(MemcachedNative::Client*& client_, Callback* callback_)
 		: JobBase(client_, callback_) { }
 
-	virtual void execute(memcached_st* memcached) {
-		printf("%s\n", "FetchResultJob execute");
+	virtual void execute(memcached_st* mem) {
+		this->debug && printf("%s\n", "FetchResultJob execute");
 		memcached_result_st* res;
 		while(1) {
-			res = memcached_fetch_result(memcached, NULL, &rc);
+			res = memcached_fetch_result(mem, NULL, &rc);
 			if (res == NULL) break;
 			results.push_back(res);
 		}
 	}
 
 	virtual ~FetchResultJob() {
-		printf("%s\n", "FetchResultJob deconstructor");
+		this->debug && printf("%s\n", "FetchResultJob deconstructor");
 	}
 
 	virtual Local<Value> getError() {

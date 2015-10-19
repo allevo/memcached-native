@@ -37,7 +37,7 @@ char* getCharsFromParam(v8::Local<v8::String> param) {
 Nan::Persistent<v8::Function> Client::constructor;
 
 Client::Client(const char* config_string)
-	: isRunning(false)
+	: isRunning(false), debug(false)
 {
 	this->client = memcached(config_string, strlen(config_string));
 }
@@ -69,6 +69,7 @@ void Client::Init(v8::Local<v8::Object> exports) {
 	Nan::SetPrototypeMethod(tpl, "mget", MGet);
 	Nan::SetPrototypeMethod(tpl, "fetch_result", FetchResult);
 	Nan::SetPrototypeMethod(tpl, "mget_and_fetch_all", MGetAndFetchAll);
+	Nan::SetPrototypeMethod(tpl, "debug", Debug);
 
 	constructor.Reset(tpl->GetFunction());
 	exports->Set(Nan::New("Client").ToLocalChecked(), tpl->GetFunction());
@@ -99,6 +100,7 @@ void Client::Start(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	memClient->isRunning = true;
 
 	memClient->backgroundThread = new MemcachedAsyncProgressWorker(memClient, callback);
+	memClient->backgroundThread->setDebug(memClient->debug);
 	Nan::AsyncQueueWorker(memClient->backgroundThread);
 
 	info.GetReturnValue().Set(Nan::Undefined());
@@ -115,6 +117,7 @@ void Client::Set(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Callback* callback = new Callback(info[3].As<v8::Function>());
 
 	JobBase* job = new SetJob(memClient, callback, memcached_key, memcached_value, ttl);
+	job->setDebug(memClient->debug);
 	memClient->jobs.insert(job);
 
 	info.GetReturnValue().Set(Nan::Undefined());
@@ -128,6 +131,7 @@ void Client::Get(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Callback* callback = new Callback(info[1].As<v8::Function>());
 
 	JobBase* job = new GetJob(memClient, callback, memcached_key);
+	job->setDebug(memClient->debug);
 	memClient->jobs.insert(job);
 
 	info.GetReturnValue().Set(Nan::Undefined());
@@ -143,6 +147,7 @@ void Client::Touch(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Callback* callback = new Callback(info[2].As<v8::Function>());
 
 	JobBase* job = new TouchJob(memClient, callback, memcached_key, ttl);
+	job->setDebug(memClient->debug);
 	memClient->jobs.insert(job);
 
 	info.GetReturnValue().Set(Nan::Undefined());
@@ -158,6 +163,7 @@ void Client::Increment(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Callback* callback = new Callback(info[2].As<v8::Function>());
 
 	JobBase* job = new IncrementJob(memClient, callback, memcached_key, delta);
+	job->setDebug(memClient->debug);
 	memClient->jobs.insert(job);
 
 	info.GetReturnValue().Set(Nan::Undefined());
@@ -173,6 +179,7 @@ void Client::Decrement(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Callback* callback = new Callback(info[2].As<v8::Function>());
 
 	JobBase* job = new DecrementJob(memClient, callback, memcached_key, delta);
+	job->setDebug(memClient->debug);
 	memClient->jobs.insert(job);
 
 	info.GetReturnValue().Set(Nan::Undefined());
@@ -187,6 +194,7 @@ void Client::Append(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Callback* callback = new Callback(info[2].As<v8::Function>());
 
 	JobBase* job = new AppendJob(memClient, callback, memcached_key, memcached_value);
+	job->setDebug(memClient->debug);
 	memClient->jobs.insert(job);
 
 	info.GetReturnValue().Set(Nan::Undefined());
@@ -201,6 +209,7 @@ void Client::Prepend(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Callback* callback = new Callback(info[2].As<v8::Function>());
 
 	JobBase* job = new PrependJob(memClient, callback, memcached_key, memcached_value);
+	job->setDebug(memClient->debug);
 	memClient->jobs.insert(job);
 
 	info.GetReturnValue().Set(Nan::Undefined());
@@ -216,6 +225,7 @@ void Client::Delete(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Callback* callback = new Callback(info[2].As<v8::Function>());
 
 	JobBase* job = new DeleteJob(memClient, callback, memcached_key, expirationTime);
+	job->setDebug(memClient->debug);
 	memClient->jobs.insert(job);
 
 	info.GetReturnValue().Set(Nan::Undefined());
@@ -229,6 +239,7 @@ void Client::Exist(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Callback* callback = new Callback(info[1].As<v8::Function>());
 
 	JobBase* job = new ExistJob(memClient, callback, memcached_key);
+	job->setDebug(memClient->debug);
 	memClient->jobs.insert(job);
 
 	info.GetReturnValue().Set(Nan::Undefined());
@@ -245,6 +256,7 @@ void Client::Replace(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Callback* callback = new Callback(info[3].As<v8::Function>());
 
 	JobBase* job = new ReplaceJob(memClient, callback, memcached_key, memcached_value, ttl);
+	job->setDebug(memClient->debug);
 	memClient->jobs.insert(job);
 
 	info.GetReturnValue().Set(Nan::Undefined());
@@ -266,6 +278,7 @@ void Client::Cas(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Callback* callback = new Callback(info[4].As<v8::Function>());
 
 	JobBase* job = new CasJob(memClient, callback, memcached_key, memcached_value, ttl, cas);
+	job->setDebug(memClient->debug);
 	memClient->jobs.insert(job);
 
 	info.GetReturnValue().Set(Nan::Undefined());
@@ -276,7 +289,7 @@ void Client::MGet(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 
 	v8::Local<v8::Object> arr = info[0]->ToObject();
 	size_t number_of_keys = arr->GetOwnPropertyNames()->Length();
-	printf("%s %lu %s\n", "Array with", number_of_keys, "keys");
+	memClient->debug && printf("%s %lu %s\n", "Array with", number_of_keys, "keys");
 	char** keys = new char*[number_of_keys];
 	for(size_t i = 0; i < number_of_keys; i++) {
 		keys[i] = getCharsFromParam(arr->Get(i)->ToString());
@@ -285,6 +298,7 @@ void Client::MGet(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Callback* callback = new Callback(info[1].As<v8::Function>());
 
 	JobBase* job = new MGetJob(memClient, callback, keys, number_of_keys);
+	job->setDebug(memClient->debug);
 	memClient->jobs.insert(job);
 
 	info.GetReturnValue().Set(Nan::Undefined());
@@ -296,6 +310,7 @@ void Client::FetchResult(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Callback* callback = new Callback(info[0].As<v8::Function>());
 
 	JobBase* job = new FetchResultJob(memClient, callback);
+	job->setDebug(memClient->debug);
 	memClient->jobs.insert(job);
 
 	info.GetReturnValue().Set(Nan::Undefined());
@@ -307,7 +322,7 @@ void Client::MGetAndFetchAll(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 
 	v8::Local<v8::Object> arr = info[0]->ToObject();
 	size_t number_of_keys = arr->GetOwnPropertyNames()->Length();
-	printf("%s %lu %s\n", "Array with", number_of_keys, "keys");
+	memClient->debug && printf("%s %lu %s\n", "Array with", number_of_keys, "keys");
 	char** keys = new char*[number_of_keys];
 	for(size_t i = 0; i < number_of_keys; i++) {
 		keys[i] = getCharsFromParam(arr->Get(i)->ToString());
@@ -316,6 +331,7 @@ void Client::MGetAndFetchAll(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Callback* callback = new Callback(info[1].As<v8::Function>());
 
 	JobBase* job = new MGetAndFetchAllJob(memClient, callback, keys, number_of_keys);
+	job->setDebug(memClient->debug);
 	memClient->jobs.insert(job);
 
 	info.GetReturnValue().Set(Nan::Undefined());
@@ -326,4 +342,10 @@ void Client::Stop(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 
 	memClient->backgroundThread->setCallback(new Callback(info[0].As<v8::Function>()));
 	memClient->isRunning = false;
+}
+
+void Client::Debug(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+	Client* memClient = ObjectWrap::Unwrap<Client>(info.Holder());
+	memClient->debug = info[0]->ToBoolean()->Value();
+	info.GetReturnValue().Set(Nan::Undefined());
 }
