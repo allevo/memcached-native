@@ -130,6 +130,16 @@ memcachedClient.replace(key, value, 10, function(err) {
 });
 ```
 
+### Cas
+``` memcachedClient.cas(key, value, expirationTime, casValue, callback); ```
+
+Cas operation. `casValue` can be retrieved from `fetch_result` or `mget_and_fetch_all` methods.
+```
+memcachedClient.cas(key, value, 10, casValue, function(err) {
+  assert.ifError(err);
+});
+```
+
 ### MGet
 ``` memcachedClient.mget(keys, callback); ```
 
