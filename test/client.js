@@ -280,5 +280,44 @@ describe('memcached', function () {
         });
       });
     });
+
+    it('mget and fetch_result should works fine', function(done) {
+      var keys = [
+        getRandomString(),
+        getRandomString(),
+        getRandomString(),
+      ];
+      var values = [
+        getRandomString(),
+        getRandomString(),
+        getRandomString(),
+      ];
+      memcachedClient.set(keys[0], values[0], 10, function(err) {
+      assert.ifError(err);
+      memcachedClient.set(keys[1], values[1], 10, function(err) {
+      assert.ifError(err);
+      memcachedClient.set(keys[2], values[2], 10, function(err) {
+      assert.ifError(err);
+
+        memcachedClient.mget(keys, function(err) {
+          assert.ifError(err);
+
+          memcachedClient.fetch_result(function(err, results) {
+            assert.ifError(err);
+
+            assert.deepEqual(Object.keys(results), keys);
+            assert.equal(results[keys[0]].value, values[0]);
+            assert.equal(results[keys[1]].value, values[1]);
+            assert.equal(results[keys[2]].value, values[2]);
+
+            done();
+
+          });
+        });
+
+      });
+      });
+      });
+    });
   });
 });

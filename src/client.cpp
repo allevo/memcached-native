@@ -11,6 +11,8 @@
 #include "Job/DeleteJob.hpp"
 #include "Job/ExistJob.hpp"
 #include "Job/ReplaceJob.hpp"
+#include "Job/MGetJob.hpp"
+#include "Job/FetchResultJob.hpp"
 
 using namespace MemcachedNative;
 
@@ -54,6 +56,8 @@ void Client::Init(v8::Local<v8::Object> exports) {
 	Nan::SetPrototypeMethod(tpl, "delete", Delete);
 	Nan::SetPrototypeMethod(tpl, "exist", Exist);
 	Nan::SetPrototypeMethod(tpl, "replace", Replace);
+	Nan::SetPrototypeMethod(tpl, "mget", MGet);
+	Nan::SetPrototypeMethod(tpl, "fetch_result", FetchResult);
 
 	constructor.Reset(tpl->GetFunction());
 	exports->Set(Nan::New("Client").ToLocalChecked(), tpl->GetFunction());
@@ -276,6 +280,39 @@ void Client::Replace(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Callback* callback = new Callback(info[3].As<v8::Function>());
 
 	JobBase* job = new ReplaceJob(memClient, callback, memcached_key, memcached_value, (int) ttl);
+	memClient->jobs.insert(job);
+
+	info.GetReturnValue().Set(Nan::Undefined());
+}
+
+void Client::MGet(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+	Client* memClient = ObjectWrap::Unwrap<Client>(info.Holder());
+
+	v8::Local<v8::Array> arr = *info[0]->ToObject().As<v8::Array>();
+	size_t number_of_keys = arr->Length();
+	printf("%s %lu %s\n", "Array with", number_of_keys, "keys");
+	char** keys = new char*[number_of_keys];
+	for(size_t i = 0; i < number_of_keys; i++) {
+		v8::String::Utf8Value param0(arr->Get(i)->ToString());
+		std::string param0String = std::string(*param0);
+		keys[i] = new char[param0String.length()];
+		strcpy(keys[i], param0String.c_str());
+	}
+
+	Callback* callback = new Callback(info[1].As<v8::Function>());
+
+	JobBase* job = new MGetJob(memClient, callback, keys, number_of_keys);
+	memClient->jobs.insert(job);
+
+	info.GetReturnValue().Set(Nan::Undefined());
+}
+
+void Client::FetchResult(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+	Client* memClient = ObjectWrap::Unwrap<Client>(info.Holder());
+
+	Callback* callback = new Callback(info[0].As<v8::Function>());
+
+	JobBase* job = new FetchResultJob(memClient, callback);
 	memClient->jobs.insert(job);
 
 	info.GetReturnValue().Set(Nan::Undefined());
