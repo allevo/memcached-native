@@ -73,7 +73,7 @@ describe('memcached', function () {
       });
     });
     beforeEach(function startMemcachedClient() {
-      memcachedClient = new Client('--SERVER=' + HOST + ':' + PORT);
+      memcachedClient = new Client('--SERVER=' + HOST + ':' + PORT + ' --SUPPORT-CAS');
       memcachedClient.start();
     });
     afterEach(function stopMemcachedClient(done) {
@@ -308,9 +308,11 @@ describe('memcached', function () {
             assert.equal(results[keys[0]].value, values[0]);
             assert.equal(results[keys[1]].value, values[1]);
             assert.equal(results[keys[2]].value, values[2]);
+            assert.ok(results[keys[0]].cas);
+            assert.ok(results[keys[1]].cas);
+            assert.ok(results[keys[2]].cas);
 
             done();
-
           });
         });
       });
@@ -343,6 +345,9 @@ describe('memcached', function () {
           assert.equal(results[keys[0]].value, values[0]);
           assert.equal(results[keys[1]].value, values[1]);
           assert.equal(results[keys[2]].value, values[2]);
+          assert.ok(results[keys[0]].cas);
+          assert.ok(results[keys[1]].cas);
+          assert.ok(results[keys[2]].cas);
 
           done();
         });
