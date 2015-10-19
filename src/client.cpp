@@ -288,8 +288,8 @@ void Client::Replace(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 void Client::MGet(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Client* memClient = ObjectWrap::Unwrap<Client>(info.Holder());
 
-	v8::Local<v8::Array> arr = *info[0]->ToObject().As<v8::Array>();
-	size_t number_of_keys = arr->Length();
+	v8::Local<v8::Object> arr = info[0]->ToObject();
+	size_t number_of_keys = arr->GetOwnPropertyNames()->Length();
 	printf("%s %lu %s\n", "Array with", number_of_keys, "keys");
 	char** keys = new char*[number_of_keys];
 	for(size_t i = 0; i < number_of_keys; i++) {
