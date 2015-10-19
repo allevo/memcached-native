@@ -9,7 +9,7 @@ using std::list;
 namespace MemcachedNative {
 
 
-class FetchResultJob : public JobBase {
+class FetchResultJob : public virtual JobBase {
 public:
 	explicit FetchResultJob(MemcachedNative::Client*& client_, Callback* callback_)
 		: JobBase(client_, callback_) { }

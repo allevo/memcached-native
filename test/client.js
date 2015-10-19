@@ -80,7 +80,7 @@ describe('memcached', function () {
       memcachedClient.stop(done);
     });
 
-    it('set should works fine', function(done) {
+    it('set should work fine', function(done) {
       var key = getRandomString();
       var value = getRandomString();
       memcachedClient.set(key, value, 10, function(err) {
@@ -99,7 +99,7 @@ describe('memcached', function () {
       });
     });
 
-    it('get should works fine', function(done) {
+    it('get should work fine', function(done) {
       var key = getRandomString();
       var value = getRandomString();
       memcachedClient.set(key, value, 10, function(err) {
@@ -115,7 +115,7 @@ describe('memcached', function () {
       });
     });
 
-    it('touch should works fine', function(done) {
+    it('touch should work fine', function(done) {
       var key = getRandomString();
       var value = getRandomString();
       memcachedClient.set(key, value, 10, function(err) {
@@ -137,7 +137,7 @@ describe('memcached', function () {
       });
     });
 
-    it('increment should works fine', function(done) {
+    it('increment should work fine', function(done) {
       var key = getRandomString();
       memcachedClient.set(key, 23, 10, function(err) {
         assert.ifError(err);
@@ -158,7 +158,7 @@ describe('memcached', function () {
       });
     });
 
-    it('decrement should works fine', function(done) {
+    it('decrement should work fine', function(done) {
       var key = getRandomString();
       memcachedClient.set(key, 23, 10, function(err) {
         assert.ifError(err);
@@ -179,14 +179,13 @@ describe('memcached', function () {
       });
     });
 
-    it('append should works fine', function(done) {
+    it('append should work fine', function(done) {
       var key = getRandomString();
       var value = getRandomString();
       memcachedClient.set(key, value, 10, function(err) {
         assert.ifError(err);
 
         memcachedClient.append(key, '-suffix', function(err) {
-          console.log(err);
           assert.ifError(err);
 
           memcachedClient.get(key, function(err, res) {
@@ -200,7 +199,7 @@ describe('memcached', function () {
       });
     });
 
-    it('prepend should works fine', function(done) {
+    it('prepend should work fine', function(done) {
       var key = getRandomString();
       var value = getRandomString();
       memcachedClient.set(key, value, 10, function(err) {
@@ -220,7 +219,7 @@ describe('memcached', function () {
       });
     });
 
-    it('delete should works fine', function(done) {
+    it('delete should work fine', function(done) {
       var key = getRandomString();
       var value = getRandomString();
       memcachedClient.set(key, value, 10, function(err) {
@@ -240,7 +239,7 @@ describe('memcached', function () {
       });
     });
 
-    it('exist should works fine', function(done) {
+    it('exist should work fine', function(done) {
       var key = getRandomString();
       var value = getRandomString();
       memcachedClient.set(key, value, 10, function(err) {
@@ -261,7 +260,7 @@ describe('memcached', function () {
       });
     });
 
-    it('replace should works fine', function(done) {
+    it('replace should work fine', function(done) {
       var key = getRandomString();
       var value = getRandomString();
       memcachedClient.set(key, value, 10, function(err) {
@@ -281,7 +280,7 @@ describe('memcached', function () {
       });
     });
 
-    it('mget and fetch_result should works fine', function(done) {
+    it('mget and fetch_result should work fine', function(done) {
       var keys = [
         getRandomString(),
         getRandomString(),
@@ -314,7 +313,39 @@ describe('memcached', function () {
 
           });
         });
+      });
+      });
+      });
+    });
 
+    it('mget_and_fetch_all should work fine', function (done) {
+      var keys = [
+        getRandomString(),
+        getRandomString(),
+        getRandomString(),
+      ];
+      var values = [
+        getRandomString(),
+        getRandomString(),
+        getRandomString(),
+      ];
+      memcachedClient.set(keys[0], values[0], 10, function(err) {
+      assert.ifError(err);
+      memcachedClient.set(keys[1], values[1], 10, function(err) {
+      assert.ifError(err);
+      memcachedClient.set(keys[2], values[2], 10, function(err) {
+      assert.ifError(err);
+
+        memcachedClient.mget_and_fetch_all(keys, function(err, results) {
+          assert.ifError(err);
+
+          assert.deepEqual(Object.keys(results), keys);
+          assert.equal(results[keys[0]].value, values[0]);
+          assert.equal(results[keys[1]].value, values[1]);
+          assert.equal(results[keys[2]].value, values[2]);
+
+          done();
+        });
       });
       });
       });

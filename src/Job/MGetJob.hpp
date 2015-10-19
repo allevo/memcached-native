@@ -6,7 +6,7 @@
 namespace MemcachedNative {
 
 
-class MGetJob : public JobBase {
+class MGetJob : public virtual JobBase {
 public:
 	explicit MGetJob(MemcachedNative::Client*& client_, Callback* callback_, char** keys_, size_t number_of_keys_)
 		: JobBase(client_, callback_), keys(keys_), number_of_keys(number_of_keys_) { }

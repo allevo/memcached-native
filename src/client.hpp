@@ -36,6 +36,7 @@ private:
 	static void Replace(const Nan::FunctionCallbackInfo<v8::Value>& info);
 	static void MGet(const Nan::FunctionCallbackInfo<v8::Value>& info);
 	static void FetchResult(const Nan::FunctionCallbackInfo<v8::Value>& info);
+	static void MGetAndFetchAll(const Nan::FunctionCallbackInfo<v8::Value>& info);
 
 	static Nan::Persistent<v8::Function> constructor;
 

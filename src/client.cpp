@@ -13,6 +13,7 @@
 #include "Job/ReplaceJob.hpp"
 #include "Job/MGetJob.hpp"
 #include "Job/FetchResultJob.hpp"
+#include "Job/MGetAndFetchAllJob.hpp"
 
 using namespace MemcachedNative;
 
@@ -58,6 +59,7 @@ void Client::Init(v8::Local<v8::Object> exports) {
 	Nan::SetPrototypeMethod(tpl, "replace", Replace);
 	Nan::SetPrototypeMethod(tpl, "mget", MGet);
 	Nan::SetPrototypeMethod(tpl, "fetch_result", FetchResult);
+	Nan::SetPrototypeMethod(tpl, "mget_and_fetch_all", MGetAndFetchAll);
 
 	constructor.Reset(tpl->GetFunction());
 	exports->Set(Nan::New("Client").ToLocalChecked(), tpl->GetFunction());
@@ -313,6 +315,29 @@ void Client::FetchResult(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Callback* callback = new Callback(info[0].As<v8::Function>());
 
 	JobBase* job = new FetchResultJob(memClient, callback);
+	memClient->jobs.insert(job);
+
+	info.GetReturnValue().Set(Nan::Undefined());
+}
+
+
+void Client::MGetAndFetchAll(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+	Client* memClient = ObjectWrap::Unwrap<Client>(info.Holder());
+
+	v8::Local<v8::Object> arr = info[0]->ToObject();
+	size_t number_of_keys = arr->GetOwnPropertyNames()->Length();
+	printf("%s %lu %s\n", "Array with", number_of_keys, "keys");
+	char** keys = new char*[number_of_keys];
+	for(size_t i = 0; i < number_of_keys; i++) {
+		v8::String::Utf8Value param0(arr->Get(i)->ToString());
+		std::string param0String = std::string(*param0);
+		keys[i] = new char[param0String.length()];
+		strcpy(keys[i], param0String.c_str());
+	}
+
+	Callback* callback = new Callback(info[1].As<v8::Function>());
+
+	JobBase* job = new MGetAndFetchAllJob(memClient, callback, keys, number_of_keys);
 	memClient->jobs.insert(job);
 
 	info.GetReturnValue().Set(Nan::Undefined());

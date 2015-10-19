@@ -154,6 +154,18 @@ memcachedClient.mget(['key1', 'key2'], function(err) {
 });
 ```
 
+### MGetAndFetchAll
+``` memcachedClient.mget_and_fetch_all(keys, callback); ```
+
+Request and return all keys specified
+```
+memcachedClient.mget_and_fetch_all(['key1', 'key2'], function(err, results) {
+  assert.ifError(err);
+  console.log(results.key1);
+  console.log(results.key2);
+});
+```
+
 ## Some considerations
 When you run a client, a thread is started. Nodejs uses 4 thread to make some operations (like read file) that cannot be performed as asynchronous operation.
 
