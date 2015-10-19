@@ -39,7 +39,7 @@ public:
 			v8::Local<v8::Object> element = Nan::New<v8::Object>();
 			element->Set(Nan::New("key").ToLocalChecked(), Nan::New(memcached_result_key_value(current)).ToLocalChecked());
 			element->Set(Nan::New("value").ToLocalChecked(), Nan::New(memcached_result_value(current)).ToLocalChecked());
-			element->Set(Nan::New("cas").ToLocalChecked(), Nan::New((uint32_t) memcached_result_cas(current)));
+			element->Set(Nan::New("cas").ToLocalChecked(), Nan::New(getStringFromUInt64(memcached_result_cas(current))).ToLocalChecked());
 
 			result->Set(Nan::New(memcached_result_key_value(current)).ToLocalChecked(), element);
 		}
@@ -49,6 +49,12 @@ public:
 
 private:
 	list<memcached_result_st*> results;
+
+	char* getStringFromUInt64(uint64_t val) {
+		char* temp = new char[21];
+		sprintf(temp, "%" PRIu64, val);
+		return temp;
+	}
 };
 
 };

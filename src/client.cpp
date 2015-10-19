@@ -110,11 +110,11 @@ void Client::Set(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	char* memcached_value = (char*) malloc(param1String.length() * sizeof(char));
 	strcpy(memcached_value, param1String.c_str());
 
-	double ttl = info[2]->NumberValue();
+	time_t ttl = info[2]->NumberValue();
 
 	Callback* callback = new Callback(info[3].As<v8::Function>());
 
-	JobBase* job = new SetJob(memClient, callback, memcached_key, memcached_value, (int) ttl);
+	JobBase* job = new SetJob(memClient, callback, memcached_key, memcached_value, ttl);
 	memClient->jobs.insert(job);
 
 	info.GetReturnValue().Set(Nan::Undefined());
@@ -144,11 +144,11 @@ void Client::Touch(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	char* memcached_key = (char*) malloc(param0String.length() * sizeof(char));
 	strcpy(memcached_key, param0String.c_str());
 
-	double ttl = info[1]->NumberValue();
+	time_t ttl = info[1]->NumberValue();
 
 	Callback* callback = new Callback(info[2].As<v8::Function>());
 
-	JobBase* job = new TouchJob(memClient, callback, memcached_key, (int) ttl);
+	JobBase* job = new TouchJob(memClient, callback, memcached_key, ttl);
 	memClient->jobs.insert(job);
 
 	info.GetReturnValue().Set(Nan::Undefined());
@@ -240,7 +240,7 @@ void Client::Delete(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	char* memcached_key = (char*) malloc(param0String.length() * sizeof(char));
 	strcpy(memcached_key, param0String.c_str());
 
-	uint32_t expirationTime = info[1]->NumberValue();
+	uint32_t expirationTime = info[1]->ToUint32()->Value();
 
 	Callback* callback = new Callback(info[2].As<v8::Function>());
 
@@ -279,11 +279,11 @@ void Client::Replace(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	char* memcached_value = (char*) malloc(param1String.length() * sizeof(char));
 	strcpy(memcached_value, param1String.c_str());
 
-	double ttl = info[2]->NumberValue();
+	time_t ttl = info[2]->NumberValue();
 
 	Callback* callback = new Callback(info[3].As<v8::Function>());
 
-	JobBase* job = new ReplaceJob(memClient, callback, memcached_key, memcached_value, (time_t) ttl);
+	JobBase* job = new ReplaceJob(memClient, callback, memcached_key, memcached_value, ttl);
 	memClient->jobs.insert(job);
 
 	info.GetReturnValue().Set(Nan::Undefined());
@@ -302,13 +302,19 @@ void Client::Cas(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	char* memcached_value = (char*) malloc(param1String.length() * sizeof(char));
 	strcpy(memcached_value, param1String.c_str());
 
-	double ttl = info[2]->NumberValue();
+	time_t ttl = info[2]->NumberValue();
 
-	uint32_t cas = (*info[3]->ToUint32())->Value();
+	// String to uint64_t
+	v8::String::Utf8Value param3(info[3]->ToString());
+	std::string param3String = std::string(*param3);
+	char* casString = (char*) malloc(param3String.length() * sizeof(char));
+	strcpy(casString, param3String.c_str());
+	uint64_t cas;
+	sscanf(casString, "%" PRIu64, &cas);
 
 	Callback* callback = new Callback(info[4].As<v8::Function>());
 
-	JobBase* job = new CasJob(memClient, callback, memcached_key, memcached_value, (time_t) ttl, cas);
+	JobBase* job = new CasJob(memClient, callback, memcached_key, memcached_value, ttl, cas);
 	memClient->jobs.insert(job);
 
 	info.GetReturnValue().Set(Nan::Undefined());
