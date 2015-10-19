@@ -11,7 +11,7 @@
       ],
       'link_settings': {
           'libraries': [
-              '-lmemcached'
+              '<!@(pkg-config --libs libmemcached)'
           ]
       }
     }
