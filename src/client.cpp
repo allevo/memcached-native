@@ -26,6 +26,13 @@ using v8::Object;
 using Nan::AsyncProgressWorker;
 using Nan::Callback;
 
+char* getCharsFromParam(v8::Local<v8::String> param) {
+	v8::String::Utf8Value param0(param);
+	std::string param0String = std::string(*param0);
+	char* value = new char[param0String.length()];
+	strcpy(value, param0String.c_str());
+	return value;
+}
 
 Nan::Persistent<v8::Function> Client::constructor;
 
@@ -100,15 +107,8 @@ void Client::Start(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 void Client::Set(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Client* memClient = ObjectWrap::Unwrap<Client>(info.Holder());
 
-	v8::String::Utf8Value param0(info[0]->ToString());
-	std::string param0String = std::string(*param0);
-	char* memcached_key = (char*) malloc(param0String.length() * sizeof(char));
-	strcpy(memcached_key, param0String.c_str());
-
-	v8::String::Utf8Value param1(info[1]->ToString());
-	std::string param1String = std::string(*param1);
-	char* memcached_value = (char*) malloc(param1String.length() * sizeof(char));
-	strcpy(memcached_value, param1String.c_str());
+	char* memcached_key = getCharsFromParam(info[0]->ToString());
+	char* memcached_value = getCharsFromParam(info[1]->ToString());
 
 	time_t ttl = info[2]->NumberValue();
 
@@ -123,10 +123,7 @@ void Client::Set(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 void Client::Get(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Client* memClient = ObjectWrap::Unwrap<Client>(info.Holder());
 
-	v8::String::Utf8Value param0(info[0]->ToString());
-	std::string param0String = std::string(*param0);
-	char* memcached_key = (char*) malloc(param0String.length() * sizeof(char));
-	strcpy(memcached_key, param0String.c_str());
+	char* memcached_key = getCharsFromParam(info[0]->ToString());
 
 	Callback* callback = new Callback(info[1].As<v8::Function>());
 
@@ -139,10 +136,7 @@ void Client::Get(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 void Client::Touch(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Client* memClient = ObjectWrap::Unwrap<Client>(info.Holder());
 
-	v8::String::Utf8Value param0(info[0]->ToString());
-	std::string param0String = std::string(*param0);
-	char* memcached_key = (char*) malloc(param0String.length() * sizeof(char));
-	strcpy(memcached_key, param0String.c_str());
+	char* memcached_key = getCharsFromParam(info[0]->ToString());
 
 	time_t ttl = info[1]->NumberValue();
 
@@ -157,10 +151,7 @@ void Client::Touch(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 void Client::Increment(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Client* memClient = ObjectWrap::Unwrap<Client>(info.Holder());
 
-	v8::String::Utf8Value param0(info[0]->ToString());
-	std::string param0String = std::string(*param0);
-	char* memcached_key = (char*) malloc(param0String.length() * sizeof(char));
-	strcpy(memcached_key, param0String.c_str());
+	char* memcached_key = getCharsFromParam(info[0]->ToString());
 
 	uint32_t delta = info[1]->NumberValue();
 
@@ -175,10 +166,7 @@ void Client::Increment(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 void Client::Decrement(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Client* memClient = ObjectWrap::Unwrap<Client>(info.Holder());
 
-	v8::String::Utf8Value param0(info[0]->ToString());
-	std::string param0String = std::string(*param0);
-	char* memcached_key = (char*) malloc(param0String.length() * sizeof(char));
-	strcpy(memcached_key, param0String.c_str());
+	char* memcached_key = getCharsFromParam(info[0]->ToString());
 
 	uint32_t delta = info[1]->NumberValue();
 
@@ -193,15 +181,8 @@ void Client::Decrement(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 void Client::Append(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Client* memClient = ObjectWrap::Unwrap<Client>(info.Holder());
 
-	v8::String::Utf8Value param0(info[0]->ToString());
-	std::string param0String = std::string(*param0);
-	char* memcached_key = (char*) malloc(param0String.length() * sizeof(char));
-	strcpy(memcached_key, param0String.c_str());
-
-	v8::String::Utf8Value param1(info[1]->ToString());
-	std::string param1String = std::string(*param1);
-	char* memcached_value = (char*) malloc(param1String.length() * sizeof(char));
-	strcpy(memcached_value, param1String.c_str());
+	char* memcached_key = getCharsFromParam(info[0]->ToString());
+	char* memcached_value = getCharsFromParam(info[1]->ToString());
 
 	Callback* callback = new Callback(info[2].As<v8::Function>());
 
@@ -214,15 +195,8 @@ void Client::Append(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 void Client::Prepend(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Client* memClient = ObjectWrap::Unwrap<Client>(info.Holder());
 
-	v8::String::Utf8Value param0(info[0]->ToString());
-	std::string param0String = std::string(*param0);
-	char* memcached_key = (char*) malloc(param0String.length() * sizeof(char));
-	strcpy(memcached_key, param0String.c_str());
-
-	v8::String::Utf8Value param1(info[1]->ToString());
-	std::string param1String = std::string(*param1);
-	char* memcached_value = (char*) malloc(param1String.length() * sizeof(char));
-	strcpy(memcached_value, param1String.c_str());
+	char* memcached_key = getCharsFromParam(info[0]->ToString());
+	char* memcached_value = getCharsFromParam(info[1]->ToString());
 
 	Callback* callback = new Callback(info[2].As<v8::Function>());
 
@@ -235,10 +209,7 @@ void Client::Prepend(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 void Client::Delete(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Client* memClient = ObjectWrap::Unwrap<Client>(info.Holder());
 
-	v8::String::Utf8Value param0(info[0]->ToString());
-	std::string param0String = std::string(*param0);
-	char* memcached_key = (char*) malloc(param0String.length() * sizeof(char));
-	strcpy(memcached_key, param0String.c_str());
+	char* memcached_key = getCharsFromParam(info[0]->ToString());
 
 	uint32_t expirationTime = info[1]->ToUint32()->Value();
 
@@ -253,10 +224,7 @@ void Client::Delete(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 void Client::Exist(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Client* memClient = ObjectWrap::Unwrap<Client>(info.Holder());
 
-	v8::String::Utf8Value param0(info[0]->ToString());
-	std::string param0String = std::string(*param0);
-	char* memcached_key = (char*) malloc(param0String.length() * sizeof(char));
-	strcpy(memcached_key, param0String.c_str());
+	char* memcached_key = getCharsFromParam(info[0]->ToString());
 
 	Callback* callback = new Callback(info[1].As<v8::Function>());
 
@@ -269,15 +237,8 @@ void Client::Exist(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 void Client::Replace(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Client* memClient = ObjectWrap::Unwrap<Client>(info.Holder());
 
-	v8::String::Utf8Value param0(info[0]->ToString());
-	std::string param0String = std::string(*param0);
-	char* memcached_key = (char*) malloc(param0String.length() * sizeof(char));
-	strcpy(memcached_key, param0String.c_str());
-
-	v8::String::Utf8Value param1(info[1]->ToString());
-	std::string param1String = std::string(*param1);
-	char* memcached_value = (char*) malloc(param1String.length() * sizeof(char));
-	strcpy(memcached_value, param1String.c_str());
+	char* memcached_key = getCharsFromParam(info[0]->ToString());
+	char* memcached_value = getCharsFromParam(info[1]->ToString());
 
 	time_t ttl = info[2]->NumberValue();
 
@@ -292,23 +253,13 @@ void Client::Replace(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 void Client::Cas(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Client* memClient = ObjectWrap::Unwrap<Client>(info.Holder());
 
-	v8::String::Utf8Value param0(info[0]->ToString());
-	std::string param0String = std::string(*param0);
-	char* memcached_key = (char*) malloc(param0String.length() * sizeof(char));
-	strcpy(memcached_key, param0String.c_str());
-
-	v8::String::Utf8Value param1(info[1]->ToString());
-	std::string param1String = std::string(*param1);
-	char* memcached_value = (char*) malloc(param1String.length() * sizeof(char));
-	strcpy(memcached_value, param1String.c_str());
+	char* memcached_key = getCharsFromParam(info[0]->ToString());
+	char* memcached_value = getCharsFromParam(info[1]->ToString());
 
 	time_t ttl = info[2]->NumberValue();
 
 	// String to uint64_t
-	v8::String::Utf8Value param3(info[3]->ToString());
-	std::string param3String = std::string(*param3);
-	char* casString = (char*) malloc(param3String.length() * sizeof(char));
-	strcpy(casString, param3String.c_str());
+	char* casString = getCharsFromParam(info[3]->ToString());
 	uint64_t cas;
 	sscanf(casString, "%" PRIu64, &cas);
 
@@ -328,10 +279,7 @@ void Client::MGet(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	printf("%s %lu %s\n", "Array with", number_of_keys, "keys");
 	char** keys = new char*[number_of_keys];
 	for(size_t i = 0; i < number_of_keys; i++) {
-		v8::String::Utf8Value param0(arr->Get(i)->ToString());
-		std::string param0String = std::string(*param0);
-		keys[i] = new char[param0String.length()];
-		strcpy(keys[i], param0String.c_str());
+		keys[i] = getCharsFromParam(arr->Get(i)->ToString());
 	}
 
 	Callback* callback = new Callback(info[1].As<v8::Function>());
@@ -362,10 +310,7 @@ void Client::MGetAndFetchAll(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	printf("%s %lu %s\n", "Array with", number_of_keys, "keys");
 	char** keys = new char*[number_of_keys];
 	for(size_t i = 0; i < number_of_keys; i++) {
-		v8::String::Utf8Value param0(arr->Get(i)->ToString());
-		std::string param0String = std::string(*param0);
-		keys[i] = new char[param0String.length()];
-		strcpy(keys[i], param0String.c_str());
+		keys[i] = getCharsFromParam(arr->Get(i)->ToString());
 	}
 
 	Callback* callback = new Callback(info[1].As<v8::Function>());
