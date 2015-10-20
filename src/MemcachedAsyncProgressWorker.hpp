@@ -35,7 +35,7 @@ public:
 		debug && printf("%s\n", "Execute MemcachedAsyncProgressWorker");
 
 		while(client->isRunning) {
-			usleep(10 * 1000);
+			usleep(10);
 			// printf("%s %zu\n", "whiling...", client->jobs.size());
 			for(std::set<JobBase*>::iterator ii = client->jobs.begin(); ii != client->jobs.end(); ii++) {
 				JobBase* current = *ii;

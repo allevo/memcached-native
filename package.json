@@ -10,9 +10,9 @@
     "build-travis": "rm -rf build && npm install && npm test",
     "test": "npm run compile && npm run mocha"
   },
-  "repository" : {
-    "type" : "git",
-    "url" : "https://github.com/allevo/memcached-native.git"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/allevo/memcached-native.git"
   },
   "author": "allevo",
   "license": "MIT",
