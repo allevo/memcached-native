@@ -2,7 +2,6 @@
 
 var assert = require('assert');
 var Client = require('../index').Client;
-var async = require('async');
 
 var helper = require('./helper');
 var getRandomString = helper.getRandomString;
@@ -19,32 +18,67 @@ describe('benchmark', function () {
   afterEach(function(done) {
     memcachedClient.stop(done);
   });
-  it('client set small value should be efficient', function (done) {
-    var key = getRandomString();
-    var value = 'value';
-    var ops = [];
-    for(var i = 0; i < 1000; i++) {
-      ops.push(memcachedClient.set.bind(memcachedClient, key, value, 42));
+  describe('serie', function () {
+    function getSetSerieWrapper(n, fn, done) {
+      var i = 0;
+      return function set() {
+        i++;
+        if (i >= n) return done();
+        fn(function(err) {
+          assert.ifError(err);
+          set();
+        });
+      }
     }
-    async.series(ops, done);
+
+    it('client set small value should be efficient', function (done) {
+      var key = getRandomString();
+      var value = 'value';
+      getSetSerieWrapper(1000, memcachedClient.set.bind(memcachedClient, key, value, 42), done)();
+    });
+    it('client set largest value should be efficient', function (done) {
+      var key = getRandomString();
+      var value = (new Array(100001)).join('a');
+      getSetSerieWrapper(1000, memcachedClient.set.bind(memcachedClient, key, value, 42), done)();
+    });
+    it('client set heavy value should be efficient', function (done) {
+      var key = getRandomString();
+      // Memcached max stores 1M (by default)
+      var value = (new Array(1000001)).join('a');
+      getSetSerieWrapper(10, memcachedClient.set.bind(memcachedClient, key, value, 42), done)();
+    });
   });
-  it('client set largest value should be efficient', function (done) {
-    var key = getRandomString();
-    var value = (new Array(100001)).join('a');
-    var ops = [];
-    for(var i = 0; i < 1000; i++) {
-      ops.push(memcachedClient.set.bind(memcachedClient, key, value, 42));
+
+  describe('parallel', function () {
+    function setParallel(n, fn, done) {
+      var i = 0;
+      function cbk(err) {
+        assert.ifError(err);
+        i++;
+        if (i === n) {
+          return done();
+        }
+      }
+      for(var j = 0; j < n; j++) {
+        fn(cbk);
+      }
     }
-    async.series(ops, done);
-  });
-  it('client set largest value should be efficient', function (done) {
-    var key = getRandomString();
-    // Memcached max stores 1M (by default)
-    var value = (new Array(1000001)).join('a');
-    var ops = [];
-    for(var i =0; i < 10; i++) {
-      ops.push(memcachedClient.set.bind(memcachedClient, key, value, 42));
-    }
-    async.series(ops, done);
+
+    it('client set small value should be efficient', function (done) {
+      var key = getRandomString();
+      var value = 'value';
+      setParallel(1000, memcachedClient.set.bind(memcachedClient, key, value, 42), done);
+    });
+    it('client set largest value should be efficient', function (done) {
+      var key = getRandomString();
+      var value = (new Array(100001)).join('a');
+      setParallel(1000, memcachedClient.set.bind(memcachedClient, key, value, 42), done);
+    });
+    it('client set heavy value should be efficient', function (done) {
+      var key = getRandomString();
+      // Memcached max stores 1M (by default)
+      var value = (new Array(1000001)).join('a');
+      setParallel(10, memcachedClient.set.bind(memcachedClient, key, value, 42), done);
+    });
   });
 });

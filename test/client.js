@@ -3,7 +3,6 @@
 var assert = require('assert');
 var spawn = require('child_process').spawn;
 var net = require('net');
-var async = require('async');
 
 var Client = require('../index').Client;
 
