@@ -2,6 +2,7 @@
 #include <v8.h>
 #include <nan.h>
 
+#include "utils.hpp"
 #include "client.hpp"
 
 #define ADD_CONSTANT(exports, constantKey, constantValue) \
@@ -67,36 +68,46 @@ void addConstant(v8::Local<v8::Object> exports) {
 }
 
 void Strerror(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+	CHECK_ARGUMENT_LENGTH(info, 1, "1")
+	CHECK_N_ARGS_IS_A_NUMBER(info, 0, "0");
 	memcached_return_t rc = (memcached_return_t) ( (int) info[0]->NumberValue() );
 	info.GetReturnValue().Set(Nan::New(memcached_strerror(NULL, rc)).ToLocalChecked());
 }
 
 void Failed(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+	CHECK_ARGUMENT_LENGTH(info, 1, "1")
+	CHECK_N_ARGS_IS_A_NUMBER(info, 0, "0");
 	memcached_return_t rc = (memcached_return_t) ( (int) info[0]->NumberValue() );
 	info.GetReturnValue().Set(Nan::New(memcached_failed(rc)));
 }
 
 void Success(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+	CHECK_ARGUMENT_LENGTH(info, 1, "1")
+	CHECK_N_ARGS_IS_A_NUMBER(info, 0, "0");
 	memcached_return_t rc = (memcached_return_t) ( (int) info[0]->NumberValue() );
 	info.GetReturnValue().Set(Nan::New(memcached_success(rc)));
 }
 
 void Fatal(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+	CHECK_ARGUMENT_LENGTH(info, 1, "1")
+	CHECK_N_ARGS_IS_A_NUMBER(info, 0, "0");
 	memcached_return_t rc = (memcached_return_t) ( (int) info[0]->NumberValue() );
 	info.GetReturnValue().Set(Nan::New(memcached_fatal(rc)));
 }
 
 void CheckConfiguration(const Nan::FunctionCallbackInfo<v8::Value>& info) {
-	v8::String::Utf8Value param0(info[0]->ToString());
-	std::string param0String = std::string(*param0);
-	char* conf = (char*) malloc(param0String.length() * sizeof(char));
-	strcpy(conf, param0String.c_str());
+	CHECK_ARGUMENT_LENGTH(info, 1, "1")
+	CHECK_N_ARGS_IS_A_STRING(info, 0, "0");
+
+	char* conf = getCharsFromParam(info[0]->ToString());
 
 	char errorBuffer[2048];
 	memcached_return_t rc = libmemcached_check_configuration(conf, strlen(conf), errorBuffer, sizeof(errorBuffer));
 	if (!memcached_success(rc)) {
 		Nan::ThrowError(errorBuffer);
 	}
+	delete conf;
+
 	info.GetReturnValue().Set(Nan::Undefined());
 }
 

@@ -4,6 +4,7 @@
 #include <nan.h>
 #include <set>
 #include <libmemcached/memcached.h>
+#include "utils.hpp"
 
 #include "Job/Base.hpp"
 

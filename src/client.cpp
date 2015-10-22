@@ -26,14 +26,6 @@ using v8::Object;
 using Nan::AsyncProgressWorker;
 using Nan::Callback;
 
-char* getCharsFromParam(v8::Local<v8::String> param) {
-	v8::String::Utf8Value param0(param);
-	std::string param0String = std::string(*param0);
-	char* value = new char[param0String.length()];
-	strcpy(value, param0String.c_str());
-	return value;
-}
-
 Nan::Persistent<v8::Function> Client::constructor;
 
 Client::Client(const char* config_string)
@@ -109,11 +101,15 @@ void Client::Start(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 void Client::Set(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Client* memClient = ObjectWrap::Unwrap<Client>(info.Holder());
 
+	CHECK_ARGUMENT_LENGTH(info, 4, "4")
+	CHECK_N_ARGS_IS_A_STRING(info, 0, "0")
+	CHECK_N_ARGS_IS_A_STRING_OR_NUMBER(info, 1, "1")
+	CHECK_N_ARGS_IS_A_NUMBER(info, 2, "2");
+	CHECK_N_ARGS_IS_A_FUNCTION(info, 3, "3")
+
 	char* memcached_key = getCharsFromParam(info[0]->ToString());
 	char* memcached_value = getCharsFromParam(info[1]->ToString());
-
 	time_t ttl = info[2]->NumberValue();
-
 	Callback* callback = new Callback(info[3].As<v8::Function>());
 
 	JobBase* job = new SetJob(memClient, callback, memcached_key, memcached_value, ttl);
@@ -126,8 +122,11 @@ void Client::Set(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 void Client::Get(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Client* memClient = ObjectWrap::Unwrap<Client>(info.Holder());
 
-	char* memcached_key = getCharsFromParam(info[0]->ToString());
+	CHECK_ARGUMENT_LENGTH(info, 2, "2")
+	CHECK_N_ARGS_IS_A_STRING(info, 0, "0")
+	CHECK_N_ARGS_IS_A_FUNCTION(info, 1, "1")
 
+	char* memcached_key = getCharsFromParam(info[0]->ToString());
 	Callback* callback = new Callback(info[1].As<v8::Function>());
 
 	JobBase* job = new GetJob(memClient, callback, memcached_key);
@@ -140,10 +139,13 @@ void Client::Get(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 void Client::Touch(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Client* memClient = ObjectWrap::Unwrap<Client>(info.Holder());
 
+	CHECK_ARGUMENT_LENGTH(info, 3, "3")
+	CHECK_N_ARGS_IS_A_STRING(info, 0, "0")
+	CHECK_N_ARGS_IS_A_NUMBER(info, 1, "1")
+	CHECK_N_ARGS_IS_A_FUNCTION(info, 2, "2")
+
 	char* memcached_key = getCharsFromParam(info[0]->ToString());
-
 	time_t ttl = info[1]->NumberValue();
-
 	Callback* callback = new Callback(info[2].As<v8::Function>());
 
 	JobBase* job = new TouchJob(memClient, callback, memcached_key, ttl);
@@ -156,10 +158,13 @@ void Client::Touch(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 void Client::Increment(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Client* memClient = ObjectWrap::Unwrap<Client>(info.Holder());
 
+	CHECK_ARGUMENT_LENGTH(info, 3, "3")
+	CHECK_N_ARGS_IS_A_STRING(info, 0, "0")
+	CHECK_N_ARGS_IS_A_NUMBER(info, 1, "1")
+	CHECK_N_ARGS_IS_A_FUNCTION(info, 2, "2")
+
 	char* memcached_key = getCharsFromParam(info[0]->ToString());
-
 	uint32_t delta = info[1]->NumberValue();
-
 	Callback* callback = new Callback(info[2].As<v8::Function>());
 
 	JobBase* job = new IncrementJob(memClient, callback, memcached_key, delta);
@@ -172,10 +177,13 @@ void Client::Increment(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 void Client::Decrement(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Client* memClient = ObjectWrap::Unwrap<Client>(info.Holder());
 
+	CHECK_ARGUMENT_LENGTH(info, 3, "3")
+	CHECK_N_ARGS_IS_A_STRING(info, 0, "0")
+	CHECK_N_ARGS_IS_A_NUMBER(info, 1, "1")
+	CHECK_N_ARGS_IS_A_FUNCTION(info, 2, "2")
+
 	char* memcached_key = getCharsFromParam(info[0]->ToString());
-
 	uint32_t delta = info[1]->NumberValue();
-
 	Callback* callback = new Callback(info[2].As<v8::Function>());
 
 	JobBase* job = new DecrementJob(memClient, callback, memcached_key, delta);
@@ -188,9 +196,13 @@ void Client::Decrement(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 void Client::Append(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Client* memClient = ObjectWrap::Unwrap<Client>(info.Holder());
 
+	CHECK_ARGUMENT_LENGTH(info, 3, "3")
+	CHECK_N_ARGS_IS_A_STRING(info, 0, "0")
+	CHECK_N_ARGS_IS_A_STRING(info, 1, "1")
+	CHECK_N_ARGS_IS_A_FUNCTION(info, 2, "2")
+
 	char* memcached_key = getCharsFromParam(info[0]->ToString());
 	char* memcached_value = getCharsFromParam(info[1]->ToString());
-
 	Callback* callback = new Callback(info[2].As<v8::Function>());
 
 	JobBase* job = new AppendJob(memClient, callback, memcached_key, memcached_value);
@@ -203,9 +215,13 @@ void Client::Append(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 void Client::Prepend(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Client* memClient = ObjectWrap::Unwrap<Client>(info.Holder());
 
+	CHECK_ARGUMENT_LENGTH(info, 3, "3")
+	CHECK_N_ARGS_IS_A_STRING(info, 0, "0")
+	CHECK_N_ARGS_IS_A_STRING(info, 1, "1")
+	CHECK_N_ARGS_IS_A_FUNCTION(info, 2, "2")
+
 	char* memcached_key = getCharsFromParam(info[0]->ToString());
 	char* memcached_value = getCharsFromParam(info[1]->ToString());
-
 	Callback* callback = new Callback(info[2].As<v8::Function>());
 
 	JobBase* job = new PrependJob(memClient, callback, memcached_key, memcached_value);
@@ -218,10 +234,13 @@ void Client::Prepend(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 void Client::Delete(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Client* memClient = ObjectWrap::Unwrap<Client>(info.Holder());
 
+	CHECK_ARGUMENT_LENGTH(info, 3, "3")
+	CHECK_N_ARGS_IS_A_STRING(info, 0, "0")
+	CHECK_N_ARGS_IS_AN_UNSIGNED_INTEGER(info, 1, "1")
+	CHECK_N_ARGS_IS_A_FUNCTION(info, 2, "2")
+
 	char* memcached_key = getCharsFromParam(info[0]->ToString());
-
 	uint32_t expirationTime = info[1]->ToUint32()->Value();
-
 	Callback* callback = new Callback(info[2].As<v8::Function>());
 
 	JobBase* job = new DeleteJob(memClient, callback, memcached_key, expirationTime);
@@ -234,8 +253,11 @@ void Client::Delete(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 void Client::Exist(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Client* memClient = ObjectWrap::Unwrap<Client>(info.Holder());
 
-	char* memcached_key = getCharsFromParam(info[0]->ToString());
+	CHECK_ARGUMENT_LENGTH(info, 2, "2")
+	CHECK_N_ARGS_IS_A_STRING(info, 0, "0")
+	CHECK_N_ARGS_IS_A_FUNCTION(info, 1, "1")
 
+	char* memcached_key = getCharsFromParam(info[0]->ToString());
 	Callback* callback = new Callback(info[1].As<v8::Function>());
 
 	JobBase* job = new ExistJob(memClient, callback, memcached_key);
@@ -248,11 +270,15 @@ void Client::Exist(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 void Client::Replace(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Client* memClient = ObjectWrap::Unwrap<Client>(info.Holder());
 
+	CHECK_ARGUMENT_LENGTH(info, 4, "4")
+	CHECK_N_ARGS_IS_A_STRING(info, 0, "0")
+	CHECK_N_ARGS_IS_A_STRING(info, 1, "1")
+	CHECK_N_ARGS_IS_A_NUMBER(info, 2, "2")
+	CHECK_N_ARGS_IS_A_FUNCTION(info, 3, "3")
+
 	char* memcached_key = getCharsFromParam(info[0]->ToString());
 	char* memcached_value = getCharsFromParam(info[1]->ToString());
-
 	time_t ttl = info[2]->NumberValue();
-
 	Callback* callback = new Callback(info[3].As<v8::Function>());
 
 	JobBase* job = new ReplaceJob(memClient, callback, memcached_key, memcached_value, ttl);
@@ -265,16 +291,20 @@ void Client::Replace(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 void Client::Cas(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Client* memClient = ObjectWrap::Unwrap<Client>(info.Holder());
 
+	CHECK_ARGUMENT_LENGTH(info, 5, "5")
+	CHECK_N_ARGS_IS_A_STRING(info, 0, "0")
+	CHECK_N_ARGS_IS_A_STRING(info, 1, "1")
+	CHECK_N_ARGS_IS_A_NUMBER(info, 2, "2")
+	CHECK_N_ARGS_IS_A_STRING(info, 3, "3")
+	CHECK_N_ARGS_IS_A_FUNCTION(info, 4, "4")
+
 	char* memcached_key = getCharsFromParam(info[0]->ToString());
 	char* memcached_value = getCharsFromParam(info[1]->ToString());
-
 	time_t ttl = info[2]->NumberValue();
-
 	// String to uint64_t
 	char* casString = getCharsFromParam(info[3]->ToString());
 	uint64_t cas;
 	sscanf(casString, "%" PRIu64, &cas);
-
 	Callback* callback = new Callback(info[4].As<v8::Function>());
 
 	JobBase* job = new CasJob(memClient, callback, memcached_key, memcached_value, ttl, cas);
@@ -286,6 +316,10 @@ void Client::Cas(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 
 void Client::MGet(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Client* memClient = ObjectWrap::Unwrap<Client>(info.Holder());
+
+	CHECK_ARGUMENT_LENGTH(info, 2, "2")
+	CHECK_N_ARGS_IS_AN_ARRAY(info, 0, "0")
+	CHECK_N_ARGS_IS_A_FUNCTION(info, 1, "1")
 
 	v8::Local<v8::Object> arr = info[0]->ToObject();
 	size_t number_of_keys = arr->GetOwnPropertyNames()->Length();
@@ -307,6 +341,9 @@ void Client::MGet(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 void Client::FetchResult(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Client* memClient = ObjectWrap::Unwrap<Client>(info.Holder());
 
+	CHECK_ARGUMENT_LENGTH(info, 1, "1")
+	CHECK_N_ARGS_IS_A_FUNCTION(info, 0, "0")
+
 	Callback* callback = new Callback(info[0].As<v8::Function>());
 
 	JobBase* job = new FetchResultJob(memClient, callback);
@@ -319,6 +356,10 @@ void Client::FetchResult(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 
 void Client::MGetAndFetchAll(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Client* memClient = ObjectWrap::Unwrap<Client>(info.Holder());
+
+	CHECK_ARGUMENT_LENGTH(info, 2, "2")
+	CHECK_N_ARGS_IS_AN_ARRAY(info, 0, "0")
+	CHECK_N_ARGS_IS_A_FUNCTION(info, 1, "1")
 
 	v8::Local<v8::Object> arr = info[0]->ToObject();
 	size_t number_of_keys = arr->GetOwnPropertyNames()->Length();
@@ -346,6 +387,10 @@ void Client::Stop(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 
 void Client::Debug(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Client* memClient = ObjectWrap::Unwrap<Client>(info.Holder());
+
+	CHECK_ARGUMENT_LENGTH(info, 1, "1")
+	CHECK_N_ARGS_IS_A_BOOLEAN(info, 0, "0")
+
 	memClient->debug = info[0]->ToBoolean()->Value();
 	info.GetReturnValue().Set(Nan::Undefined());
 }
