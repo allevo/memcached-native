@@ -7,8 +7,8 @@ namespace MemcachedNative {
 
 class DecrementJob : public JobBase {
 public:
-	explicit DecrementJob(MemcachedNative::Client*& client_, Callback* callback_, char* key_, uint32_t delta_)
-		: JobBase(client_, callback_), key(key_), delta(delta_) { }
+	explicit DecrementJob(Callback* callback_, char* key_, uint32_t delta_)
+		: JobBase(callback_), key(key_), delta(delta_) { }
 
 	virtual void execute(memcached_st* mem) {
 		this->debug && printf("%s %s (%zu): %d\n", "DecrementJob execute", key, strlen(key), delta);

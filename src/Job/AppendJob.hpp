@@ -8,8 +8,8 @@ namespace MemcachedNative {
 
 class AppendJob : public JobBase {
 public:
-	explicit AppendJob(MemcachedNative::Client*& client_, Callback* callback_, char* key_, char* value_)
-		: JobBase(client_, callback_), key(key_), value(value_) { }
+	explicit AppendJob(Callback* callback_, char* key_, char* value_)
+		: JobBase(callback_), key(key_), value(value_) { }
 
 	virtual void execute(memcached_st* mem) {
 		this->debug && printf("%s %s (%zu): %s (%zu)\n", "AppendJob execute", key, strlen(key), value, strlen(value));

@@ -11,8 +11,8 @@ namespace MemcachedNative {
 
 class FetchResultJob : public virtual JobBase {
 public:
-	explicit FetchResultJob(MemcachedNative::Client*& client_, Callback* callback_)
-		: JobBase(client_, callback_) { }
+	explicit FetchResultJob(Callback* callback_)
+		: JobBase(callback_) { }
 
 	virtual void execute(memcached_st* mem) {
 		this->debug && printf("%s\n", "FetchResultJob execute");

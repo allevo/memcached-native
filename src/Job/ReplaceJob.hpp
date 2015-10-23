@@ -8,8 +8,8 @@ namespace MemcachedNative {
 
 class ReplaceJob : public JobBase {
 public:
-	explicit ReplaceJob(MemcachedNative::Client*& client_, Callback* callback_, char* key_, char* value_, time_t ttl_)
-		: JobBase(client_, callback_), key(key_), value(value_), ttl(ttl_) { }
+	explicit ReplaceJob(Callback* callback_, char* key_, char* value_, time_t ttl_)
+		: JobBase(callback_), key(key_), value(value_), ttl(ttl_) { }
 
 	virtual void execute(memcached_st* mem) {
 		this->debug && printf("%s %s (%zu): %s (%zu) [%ld s] \n", "ReplaceJob execute", key, strlen(key), value, strlen(value), (long int) ttl);

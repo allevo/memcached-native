@@ -7,8 +7,8 @@ namespace MemcachedNative {
 
 class DeleteJob : public JobBase {
 public:
-	explicit DeleteJob(MemcachedNative::Client*& client_, Callback* callback_, char* key_, uint32_t expiration_time_)
-		: JobBase(client_, callback_), key(key_), expiration_time(expiration_time_) { }
+	explicit DeleteJob(Callback* callback_, char* key_, uint32_t expiration_time_)
+		: JobBase(callback_), key(key_), expiration_time(expiration_time_) { }
 
 	virtual void execute(memcached_st* mem) {
 		this->debug && printf("%s %s (%zu): %u\n", "DeleteJob execute", key, strlen(key), expiration_time);

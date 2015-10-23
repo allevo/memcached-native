@@ -7,8 +7,8 @@ namespace MemcachedNative {
 
 class GetJob : public JobBase {
 public:
-	explicit GetJob(MemcachedNative::Client*& client_, Callback* callback_, char* key_)
-		: JobBase(client_, callback_), key(key_), value(NULL) { }
+	explicit GetJob(Callback* callback_, char* key_)
+		: JobBase(callback_), key(key_), value(NULL) { }
 
 	virtual void execute(memcached_st* mem) {
 		this->debug && printf("%s\n", "GetJob execute");

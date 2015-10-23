@@ -14,12 +14,10 @@ using Nan::Callback;
 
 namespace MemcachedNative {
 
-class Client;
-
 class JobBase {
 public:
-	explicit JobBase(MemcachedNative::Client*& client_, Callback* callback_)
-		: client(client_), callback(callback_), isDone(false), debug(false) { }
+	explicit JobBase(Callback* callback_)
+		: callback(callback_), isDone(false), debug(false) { }
 
 	virtual ~JobBase() { }
 
@@ -40,9 +38,6 @@ public:
 	virtual void setDebug(bool debug_) {
 		debug = debug_;
 	}
-
-private:
-	MemcachedNative::Client* client;
 
 public:
 	Callback* callback;
