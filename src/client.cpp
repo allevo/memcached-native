@@ -31,7 +31,8 @@ Nan::Persistent<v8::Function> Client::constructor;
 Client::Client(const char* config_string)
 	: isRunning(false), debug(false)
 {
-	this->client = memcached(config_string, strlen(config_string));
+	this->config_string = config_string;
+	// this->client = memcached(config_string, strlen(config_string));
 }
 
 Client::~Client() { }
@@ -91,7 +92,7 @@ void Client::Start(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 
 	memClient->isRunning = true;
 
-	memClient->backgroundThread = new MemcachedAsyncProgressWorker(memClient, callback);
+	memClient->backgroundThread = new MemcachedAsyncProgressWorker(memClient, callback, memClient->config_string);
 	memClient->backgroundThread->setDebug(memClient->debug);
 	Nan::AsyncQueueWorker(memClient->backgroundThread);
 

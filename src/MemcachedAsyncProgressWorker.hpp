@@ -6,6 +6,7 @@
 #include <nan.h>
 #include <set>
 #include <libmemcached/memcached.h>
+#include <libmemcached/util.h>
 
 #include "Job/Base.hpp"
 
@@ -23,10 +24,11 @@ class Client;
 
 class MemcachedAsyncProgressWorker : public AsyncProgressWorker {
 public:
-	explicit MemcachedAsyncProgressWorker(Client* client_, Callback* callback_) :
+	explicit MemcachedAsyncProgressWorker(Client* client_, Callback* callback_, const char* config_string_) :
 		AsyncProgressWorker(callback_),
 		client(client_),
-		debug(false)
+		debug(false),
+		config_string(config_string_)
 	{
 		debug && printf("%s\n", "CREATE MemcachedAsyncProgressWorker");
 	}
@@ -34,21 +36,33 @@ public:
 	virtual void Execute(const ExecutionProgress& progress) {
 		debug && printf("%s\n", "Execute MemcachedAsyncProgressWorker");
 
+		memcached_pool_st* pool = memcached_pool(config_string, strlen(config_string));
+		struct timespec relative_time;
+		relative_time.tv_sec = 10;
+		relative_time.tv_nsec = 0;
+
+		memcached_st* memcacheClient = NULL;
 		while(client->isRunning) {
-			usleep(10);
-			// printf("%s %zu\n", "whiling...", client->jobs.size());
+			usleep(100);
+			memcacheClient = memcached_pool_fetch(pool, &relative_time, NULL);
+			if (memcacheClient == NULL) {
+				usleep(100); // 1 msec
+				continue;
+			}
 			for(std::set<JobBase*>::iterator ii = client->jobs.begin(); ii != client->jobs.end(); ii++) {
 				JobBase* current = *ii;
 				if (current->isDone) continue;
 
-				current->execute(client->client);
+				current->execute(memcacheClient);
 				current->isDone = true;
 			}
 			progress.Send(NULL, 0);
+
+			memcached_pool_release(pool, memcacheClient);
 		}
 
 		// Is it safe here?
-		memcached_free(client->client);
+		memcached_pool_destroy(pool);
 	}
 
 	virtual void HandleProgressCallback(const char *data, size_t size) {
@@ -83,6 +97,7 @@ public:
 private:
 	Client* client;
 	bool debug;
+	const char* config_string;
 };
 
 
