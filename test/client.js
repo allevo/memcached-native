@@ -27,6 +27,7 @@ describe('memcached', function () {
     });
     beforeEach(function startMemcachedClient() {
       memcachedClient = new Client('--SERVER=' + HOST + ':' + PORT + ' --SUPPORT-CAS');
+      memcachedClient.debug(true);
       memcachedClient.start();
     });
     afterEach(function stopMemcachedClient(done) {
