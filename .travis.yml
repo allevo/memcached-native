@@ -13,8 +13,13 @@ install:
 script:
   - docker run --name my-memcache -d memcached
   - docker run --link my-memcache:memcache -v $(pwd):/repos -it node.10/memcached-native npm run build-travis
+  - docker stop `docker ps -q`
+  - docker run -d memcached
   - docker run --link my-memcache:memcache -v $(pwd):/repos -it node.12/memcached-native npm run build-travis
+  - docker stop `docker ps -q`
+  - docker run -d memcached
   - docker run --link my-memcache:memcache -v $(pwd):/repos -it node.4/memcached-native npm run build-travis
+  - docker stop `docker ps -q`
 
 notifications:
   email:
