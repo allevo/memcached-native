@@ -26,13 +26,13 @@ function getAllItems(callback) {
   client.on('data', function(buf) {
     client.destroy();
 
-    var lines = buf.toString().split('\n');
+    var lines = buf.toString().split('\r\n');
     // remove end
     lines.pop();
     lines.pop();
 
     async.map(lines, function(l, next) {
-      var matches = l.match(/^ITEM (\w+) \[\d b; (\d+) s\]/);
+      var matches = l.match(/^ITEM (\w+) \[\d+ b; (\d+) s\]/);
       var item = {
         key: matches[1],
         s: matches[2],
