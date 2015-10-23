@@ -6,7 +6,6 @@
 #include <nan.h>
 #include <set>
 #include <libmemcached/memcached.h>
-#include <libmemcached/util.h>
 
 #include "Job/Base.hpp"
 
@@ -36,19 +35,9 @@ public:
 	virtual void Execute(const ExecutionProgress& progress) {
 		debug && printf("%s\n", "Execute MemcachedAsyncProgressWorker");
 
-		memcached_pool_st* pool = memcached_pool(config_string, strlen(config_string));
-		struct timespec relative_time;
-		relative_time.tv_sec = 10;
-		relative_time.tv_nsec = 0;
-
-		memcached_st* memcacheClient = NULL;
+		memcached_st* memcacheClient = memcached(config_string, strlen(config_string));
 		while(client->isRunning) {
 			usleep(100);
-			memcacheClient = memcached_pool_fetch(pool, &relative_time, NULL);
-			if (memcacheClient == NULL) {
-				usleep(100); // 1 msec
-				continue;
-			}
 			for(std::set<JobBase*>::iterator ii = client->jobs.begin(); ii != client->jobs.end(); ii++) {
 				JobBase* current = *ii;
 				if (current->isDone) continue;
@@ -57,12 +46,10 @@ public:
 				current->isDone = true;
 			}
 			progress.Send(NULL, 0);
-
-			memcached_pool_release(pool, memcacheClient);
 		}
 
 		// Is it safe here?
-		memcached_pool_destroy(pool);
+		memcached_free(memcacheClient);
 	}
 
 	virtual void HandleProgressCallback(const char *data, size_t size) {
