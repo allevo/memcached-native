@@ -10,7 +10,7 @@ var PORT = helper.getMemcachePort();
 var HOST = helper.getMemcacheHost();
 
 var memcachedClient;
-describe('benchmark', function () {
+xdescribe('benchmark', function () {
   beforeEach(function() {
     memcachedClient = new Client('--SERVER=' + HOST + ':' + PORT + ' --SUPPORT-CAS');
     memcachedClient.start();
