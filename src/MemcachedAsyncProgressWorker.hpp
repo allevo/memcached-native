@@ -26,30 +26,37 @@ public:
 	explicit MemcachedAsyncProgressWorker(Client* client_, Callback* callback_, const char* config_string_) :
 		AsyncProgressWorker(callback_),
 		client(client_),
-		debug(false),
+		debug(true),
 		config_string(config_string_)
 	{
 		debug && printf("%s\n", "CREATE MemcachedAsyncProgressWorker");
 	}
 
 	virtual void Execute(const ExecutionProgress& progress) {
-		debug && printf("%s\n", "Execute MemcachedAsyncProgressWorker");
+		printf("%s\n", "DD");
+		debug && printf("%s: %s (%lu) %s\n", "Execute MemcachedAsyncProgressWorker", config_string, strlen(config_string), client->isRunning ? "y" : "n");
 
-		memcached_st* memcacheClient = memcached(config_string, strlen(config_string));
+		// memcached_st* memcacheClient = memcached(config_string, strlen(config_string));
+		debug && printf("%s %p\n", "Created memcached client at", client->memcacheClient);
 		while(client->isRunning) {
 			usleep(100);
+			debug && printf("%s %lu\n", "Jobs count: ", client->jobs.size());
 			for(std::set<JobBase*>::iterator ii = client->jobs.begin(); ii != client->jobs.end(); ii++) {
 				JobBase* current = *ii;
+				debug && printf("%s %p\n", "Current job is placed at", current);
+
 				if (current->isDone) continue;
 
-				current->execute(memcacheClient);
+				current->execute(client->memcacheClient);
 				current->isDone = true;
 			}
 			progress.Send(NULL, 0);
 		}
 
 		// Is it safe here?
-		memcached_free(memcacheClient);
+		memcached_free(client->memcacheClient);
+
+		// usleep(1000);
 	}
 
 	virtual void HandleProgressCallback(const char *data, size_t size) {

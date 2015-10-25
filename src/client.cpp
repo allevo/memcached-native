@@ -31,8 +31,9 @@ Nan::Persistent<v8::Function> Client::constructor;
 Client::Client(const char* config_string)
 	: isRunning(false), debug(false)
 {
+	debug && printf("%s %s\n", "client constructor", config_string);
+	this->memcacheClient = memcached(config_string, strlen(config_string));
 	this->config_string = config_string;
-	// this->client = memcached(config_string, strlen(config_string));
 }
 
 Client::~Client() { }
@@ -70,10 +71,7 @@ void Client::Init(v8::Local<v8::Object> exports) {
 
 void Client::New(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	if (info.IsConstructCall()) {
-		v8::String::Utf8Value param1(info[0]->ToString());
-		std::string from = std::string(*param1);
-
-		const char* conf = info[0]->IsUndefined() ? "--SERVER=localhost" : from.c_str();
+		const char* conf = getCharsFromParam(info[0]->ToString());
 
 		Client* obj = new Client(conf);
 		obj->Wrap(info.This());
@@ -93,8 +91,11 @@ void Client::Start(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	memClient->isRunning = true;
 
 	memClient->backgroundThread = new MemcachedAsyncProgressWorker(memClient, callback, memClient->config_string);
+	printf("%s\n", "AA");
 	memClient->backgroundThread->setDebug(memClient->debug);
+	printf("%s\n", "BB");
 	Nan::AsyncQueueWorker(memClient->backgroundThread);
+	printf("%s\n", "CC");
 
 	info.GetReturnValue().Set(Nan::Undefined());
 }
@@ -110,7 +111,7 @@ void Client::Set(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 
 	char* memcached_key = getCharsFromParam(info[0]->ToString());
 	char* memcached_value = getCharsFromParam(info[1]->ToString());
-	time_t ttl = info[2]->NumberValue();
+	time_t ttl = (time_t) info[2]->NumberValue();
 	Callback* callback = new Callback(info[3].As<v8::Function>());
 
 	JobBase* job = new SetJob(callback, memcached_key, memcached_value, ttl);

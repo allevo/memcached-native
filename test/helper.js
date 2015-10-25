@@ -32,7 +32,7 @@ function getAllItems(callback) {
     lines.pop();
 
     async.map(lines, function(l, next) {
-      var matches = l.match(/^ITEM (\w+) \[\d+ b; (\d+) s\]/);
+      var matches = l.match(/^ITEM ([-\w]+) \[\d+ b; (\d+) s\]/);
       var item = {
         key: matches[1],
         s: matches[2],

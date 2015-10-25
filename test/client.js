@@ -17,14 +17,15 @@ var memcachedServerProcess;
 var memcachedClient;
 describe('memcached', function () {
   describe('client', function () {
-    beforeEach(function startMemcachedServerProcess(done) {
+    /*beforeEach(function startMemcachedServerProcess(done) {
       var client = new net.Socket();
       client.connect(PORT, HOST, function() {
         client.write('flush_all\n');
         client.destroy();
         done();
       });
-    });
+    });*/
+
     beforeEach(function startMemcachedClient() {
       memcachedClient = new Client('--SERVER=' + HOST + ':' + PORT + ' --SUPPORT-CAS');
       memcachedClient.debug(true);
@@ -36,8 +37,10 @@ describe('memcached', function () {
 
     it('set should work fine', function(done) {
       var key = getRandomString();
-      var value = getRandomString();
+      var value = 20; // getRandomString();
+
       memcachedClient.set(key, value, 10, function(err) {
+        console.log(err);
         assert.ifError(err);
 
         getAllItems(function(err, items) {

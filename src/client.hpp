@@ -47,6 +47,8 @@ private:
 	MemcachedAsyncProgressWorker* backgroundThread;
 
 public:
+	memcached_st* memcacheClient;
+
 	const char* config_string;
 	std::set<JobBase*> jobs;
 	bool isRunning;
