@@ -101,14 +101,16 @@ describe('memcached', function () {
 
         setTimeout(function() {
           memcachedClient.increment(key, 40, function(err, finalValue) {
+            console.log('Increment!!!')
             assert.ifError(err);
             assert.equal(23 + 40, finalValue);
 
+            console.log('Get!!!')
             memcachedClient.get(key, function(err, res) {
               assert.ifError(err)
               assert.equal(23 + 40, res);
 
-              done();
+              setTimeout(done);
             });
           });
         }, 10);

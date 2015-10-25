@@ -46,8 +46,11 @@ private:
 
 	MemcachedAsyncProgressWorker* backgroundThread;
 
+	void insertJob(JobBase* job);
+
 public:
 	memcached_st* memcacheClient;
+	uv_mutex_t mutex_handle;
 
 	const char* config_string;
 	std::set<JobBase*> jobs;

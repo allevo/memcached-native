@@ -8,6 +8,7 @@
 #include <libmemcached/memcached.h>
 
 #include "Job/Base.hpp"
+#include "utils.hpp"
 
 using v8::Local;
 using v8::Value;
@@ -40,6 +41,9 @@ public:
 		debug && printf("%s %p\n", "Created memcached client at", client->memcacheClient);
 		while(client->isRunning) {
 			usleep(100);
+			debug && printf("%s\n", "MemcachedAsyncProgressWorker Execute locking");
+			uv_mutex_lock(&(client->mutex_handle));
+			debug && printf("%s\n", "MemcachedAsyncProgressWorker Execute locked");
 			debug && printf("%s %lu\n", "Jobs count: ", client->jobs.size());
 			for(std::set<JobBase*>::iterator ii = client->jobs.begin(); ii != client->jobs.end(); ii++) {
 				JobBase* current = *ii;
@@ -50,7 +54,12 @@ public:
 				current->execute(client->memcacheClient);
 				current->isDone = true;
 			}
-			progress.Send(NULL, 0);
+			if (client->jobs.size() != 0) {
+				progress.Send(NULL, 0);
+			}
+			debug && printf("%s\n", "MemcachedAsyncProgressWorker Execute unlocking");
+			uv_mutex_unlock(&(client->mutex_handle));
+			debug && printf("%s\n", "MemcachedAsyncProgressWorker Execute unlocked");
 		}
 
 		// Is it safe here?
@@ -66,17 +75,33 @@ public:
 		std::set<JobBase*>::iterator ii = client->jobs.begin();
 		for(;ii != client->jobs.end(); ii++) {
 			JobBase* current = *ii;
+			debug && printf("%s\n", "Current");
 			if (!current->isDone) continue;
 
+			debug && printf("%s\n", "Call callback");
 			v8::Local<v8::Value> argv[2] = {
 				current->getError(),
 				current->getResult(),
 			};
 
+			debug && printf("%s\n", "Calling callback");
 			current->callback->Call(2, argv);
+			debug && printf("%s\n", "Called callback");
 
+			debug && printf("%s\n", "MemcachedAsyncProgressWorker HandleProgressCallback locking");
+		    uv_mutex_lock(&(client->mutex_handle));
+			debug && printf("%s\n", "MemcachedAsyncProgressWorker HandleProgressCallback locked");
+
+			debug && printf("%s\n", "Deleting job");
 			delete current;
+			debug && printf("%s\n", "Deleted job");
+			debug && printf("%s\n", "Erasing job");
 			client->jobs.erase(ii);
+			debug && printf("%s\n", "Erased job");
+
+			debug && printf("%s\n", "MemcachedAsyncProgressWorker HandleProgressCallback unlocking");
+			uv_mutex_unlock(&(client->mutex_handle));
+			debug && printf("%s\n", "MemcachedAsyncProgressWorker HandleProgressCallback unlocked");
 		}
 	}
 

@@ -2,6 +2,7 @@
 #define NODEJS_MEMCACHED_CHECK_H
 
 #include <v8.h>
+#include <uv.h>
 
 #define CHECK_ARGUMENT_LENGTH(info, n, nStr) 						\
 	if (info.Length() != n) {										\
