@@ -12,14 +12,14 @@ public:
 
 	virtual void execute(memcached_st* mem) {
 		this->debug && printf("%s %s (%zu): %s (%zu) [%ld s] %s\n", "SetJob execute", key, strlen(key), value, strlen(value), (long int) ttl, memcached_strerror(NULL, rc));
-		rc = memcached_set(mem, key, strlen(key), value, strlen(value), ttl, (uint32_t)0);
+		rc = memcached_set(mem, key, strlen(key), value, strlen(value), time(0) + ttl, (uint32_t)0);
 		this->debug && printf("%s %s (%zu): %s (%zu) [%ld s] %s\n", "SetJob execute", key, strlen(key), value, strlen(value), (long int) ttl, memcached_strerror(NULL, rc));
 	}
 
 	virtual ~SetJob() {
 		this->debug && printf("%s\n", "SetJob deconstructor");
-		// delete key;
-		// delete value;
+		delete key;
+		delete value;
 	}
 
 	virtual Local<Value> getResult() {

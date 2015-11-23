@@ -10,20 +10,17 @@ var PORT = helper.getMemcachePort();
 var HOST = helper.getMemcacheHost();
 
 var memcachedClient;
-xdescribe('benchmark', function () {
+describe('benchmark', function () {
   beforeEach(function() {
     memcachedClient = new Client('--SERVER=' + HOST + ':' + PORT + ' --SUPPORT-CAS');
-    memcachedClient.start();
   });
-  afterEach(function(done) {
-    memcachedClient.stop(done);
-  });
+
   describe('serie', function () {
     function getSetSerieWrapper(n, fn, done) {
       var i = 0;
       return function set() {
         i++;
-        if (i >= n) return done();
+        if (i > n) return done();
         fn(function(err) {
           assert.ifError(err);
           set();

@@ -11,9 +11,9 @@ public:
 		: JobBase(callback_), key(key_), ttl(ttl_) { }
 
 	virtual void execute(memcached_st* mem) {
-		this->debug && printf("%s %s (%zu) [%ld s]\n", "TouchJob execute", key, strlen(key), (long int) ttl);
+		this->debug && printf("%s %s (%zu) [%ld s]\n", "TouchJob execute", key, strlen(key), (long int) time(0) + ttl);
 
-		rc = memcached_touch(mem, key, strlen(key), ttl);
+		rc = memcached_touch(mem, key, strlen(key), time(0) + ttl);
 	}
 
 	virtual ~TouchJob() {

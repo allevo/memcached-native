@@ -4,6 +4,7 @@
 #include <nan.h>
 #include <set>
 #include <libmemcached/memcached.h>
+#include <libmemcached/util.h>
 #include "utils.hpp"
 
 #include "Job/Base.hpp"
@@ -21,9 +22,6 @@ private:
 	~Client();
 
 	static void New(const Nan::FunctionCallbackInfo<v8::Value>& info);
-
-	static void Start(const Nan::FunctionCallbackInfo<v8::Value>& info);
-	static void Stop(const Nan::FunctionCallbackInfo<v8::Value>& info);
 
 	static void Set(const Nan::FunctionCallbackInfo<v8::Value>& info);
 	static void Get(const Nan::FunctionCallbackInfo<v8::Value>& info);
@@ -43,18 +41,8 @@ private:
 	static void Debug(const Nan::FunctionCallbackInfo<v8::Value>& info);
 
 	static Nan::Persistent<v8::Function> constructor;
-
-	MemcachedAsyncProgressWorker* backgroundThread;
-
-	void insertJob(JobBase* job);
-
 public:
-	memcached_st* memcacheClient;
-	uv_mutex_t mutex_handle;
-
-	const char* config_string;
-	std::set<JobBase*> jobs;
-	bool isRunning;
+	memcached_pool_st* pool;
 	bool debug;
 };
 
