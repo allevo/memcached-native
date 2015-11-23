@@ -32,7 +32,7 @@ public:
 	}
 
 	void HandleOKCallback () {
-		v8::HandleScope scope;
+		Nan::HandleScope scope;
 
 		v8::Local<v8::Value> argv[2] = {
 			job->getError(),
