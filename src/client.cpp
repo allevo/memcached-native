@@ -74,7 +74,9 @@ void Client::Init(v8::Local<v8::Object> exports) {
 
 void Client::New(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	if (info.IsConstructCall()) {
-		const char* conf = getCharsFromParam(info[0]->ToString());
+		v8::String::Utf8Value param0(info[0]->ToString());
+		std::string* param0String = new std::string(*param0);
+		const char* conf = param0String->c_str();
 
 		Client* obj = new Client(conf);
 		obj->Wrap(info.This());
