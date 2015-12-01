@@ -7,7 +7,7 @@
   "scripts": {
     "mocha": "./node_modules/mocha/bin/mocha test",
     "compile": "rm -rf build && node-gyp configure && node-gyp build",
-    "build-travis": "rm -rf build && npm install && npm test",
+    "build-travis": "rm -rf build && npm --no-bin-links install && npm test",
     "test": "npm run compile && npm run mocha"
   },
   "repository": {
