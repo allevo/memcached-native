@@ -4,7 +4,6 @@
       "target_name": "memcachedNative",
       "sources": [
         "src/init.cc",
-        "src/utils.cpp",
         "src/client.cpp"
       ],
       "include_dirs": [

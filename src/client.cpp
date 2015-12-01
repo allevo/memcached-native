@@ -4,7 +4,6 @@
 
 #include "utils.hpp"
 
-#include "DoAsyncWorker.hpp"
 #include "Job/SetJob.hpp"
 #include "Job/GetJob.hpp"
 #include "Job/TouchJob.hpp"

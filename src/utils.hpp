@@ -72,8 +72,5 @@
 	new Callback(param.As<v8::Function>());		\
 	// END GET_CALLBACK_FROM_PARAM
 
-char* getCharsFromParam(v8::Local<v8::String> param);
-
-
 
 #endif

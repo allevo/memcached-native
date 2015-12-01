@@ -41,7 +41,7 @@ public:
 		while(client->isRunning) {
 			usleep(100);
 
-			// debug && printf("%s %lu\n", "Jobs count: ", client->jobs.size());
+			debug && printf("%s %lu\n", "Jobs count: ", client->jobs.size());
 			for(std::set<JobBase*>::iterator ii = client->jobs.begin(); ii != client->jobs.end(); ii++) {
 				JobBase* current = *ii;
 
@@ -54,11 +54,7 @@ public:
 			progress.Send(NULL, 0);
 		}
 
-		// Is it safe here?
 		memcached_pool_push(client->pool, memcacheClient);
-
-		debug && printf("%s\n", "END");
-		// usleep(1000);
 	}
 
 	virtual void HandleProgressCallback(const char *data, size_t size) {
