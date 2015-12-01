@@ -127,7 +127,12 @@ void Client::Set(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	time_t ttl = (time_t) info[2]->NumberValue();
 	Callback* callback = new Callback(info[3].As<v8::Function>());
 
-	JobBase* job = new SetJob(callback, memcached_key, memcached_value, ttl);
+	v8::String::Utf8Value param0(info[0]->ToString());
+	std::string param0String = std::string(*param0);
+	v8::String::Utf8Value param1(info[1]->ToString());
+	std::string param1String = std::string(*param1);
+
+	JobBase* job = new SetJob(callback, param0String, param1String, ttl);
 	job->setDebug(memClient->debug);
 	memClient->jobs.insert(job);
 	// Nan::AsyncQueueWorker(new DoAsyncWorker(memClient->pool, job, callback));
