@@ -7,17 +7,16 @@ namespace MemcachedNative {
 
 class ExistJob : public JobBase {
 public:
-	explicit ExistJob(Callback* callback_, char* key_)
+	explicit ExistJob(Callback* callback_, const string key_)
 		: JobBase(callback_), key(key_) { }
 
 	virtual void execute(memcached_st* mem) {
-		this->debug && printf("%s %s (%zu)\n", "ExistJob execute", key, strlen(key));
-		rc = memcached_exist(mem, key, strlen(key));
+		this->debug && printf("%s %s (%zu)\n", "ExistJob execute", key.c_str(), key.size());
+		rc = memcached_exist(mem, key.c_str(), key.size());
 	}
 
 	virtual ~ExistJob() {
 		this->debug && printf("%s\n", "ExistJob deconstructor");
-		delete key;
 	}
 
 	virtual Local<Value> getResult() {
@@ -32,7 +31,7 @@ public:
 	}
 
 private:
-	char* key;
+	const string key;
 };
 
 };

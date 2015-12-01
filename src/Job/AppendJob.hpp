@@ -8,18 +8,16 @@ namespace MemcachedNative {
 
 class AppendJob : public JobBase {
 public:
-	explicit AppendJob(Callback* callback_, char* key_, char* value_)
+	explicit AppendJob(Callback* callback_, const string key_, const string value_)
 		: JobBase(callback_), key(key_), value(value_) { }
 
 	virtual void execute(memcached_st* mem) {
-		this->debug && printf("%s %s (%zu): %s (%zu)\n", "AppendJob execute", key, strlen(key), value, strlen(value));
-		rc = memcached_append(mem, key, strlen(key), value, strlen(value), 0, (uint32_t)0);
+		this->debug && printf("%s %s (%zu): %s (%zu)\n", "AppendJob execute", key.c_str(), key.size(), value.c_str(), value.size());
+		rc = memcached_append(mem, key.c_str(), key.size(), value.c_str(), value.size(), 0, (uint32_t)0);
 	}
 
 	virtual ~AppendJob() {
 		this->debug && printf("%s\n", "AppendJob deconstructor");
-		delete key;
-		delete value;
 	}
 
 	virtual Local<Value> getResult() {
@@ -27,8 +25,8 @@ public:
 	}
 
 private:
-	char* key;
-	char* value;
+	const string key;
+	const string value;
 };
 
 };

@@ -60,8 +60,20 @@
 	}																	\
 	// END CHECK_N_ARGS_IS_A_BOOLEAN
 
+#define GET_STRING_FROM_PARAM(param)							\
+	std::string(*(v8::String::Utf8Value(param->ToString()))); 	\
+	// END GET_STRING_FROM_PARAM
+
+#define GET_NUMBER_FROM_PARAM(param)	\
+	param->NumberValue(); 				\
+	// END GET_NUMBER_FROM_PARAM
+
+#define GET_CALLBACK_FROM_PARAM(param)			\
+	new Callback(param.As<v8::Function>());		\
+	// END GET_CALLBACK_FROM_PARAM
 
 char* getCharsFromParam(v8::Local<v8::String> param);
+
 
 
 #endif

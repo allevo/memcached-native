@@ -7,7 +7,7 @@ namespace MemcachedNative {
 
 class SetJob : public JobBase {
 public:
-	explicit SetJob(Callback* callback_, string key_, string value_, time_t ttl_)
+	explicit SetJob(Callback* callback_, const string key_, const string value_, time_t ttl_)
 		: JobBase(callback_), key(key_), value(value_), ttl(ttl_) { }
 
 	virtual void execute(memcached_st* mem) {
@@ -25,8 +25,8 @@ public:
 	}
 
 private:
-	string key;
-	string value;
+	const string key;
+	const string value;
 	time_t ttl;
 };
 
