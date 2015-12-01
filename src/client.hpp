@@ -23,6 +23,7 @@ private:
 
 	static void New(const Nan::FunctionCallbackInfo<v8::Value>& info);
 
+	static void Start(const Nan::FunctionCallbackInfo<v8::Value>& info);
 	static void Set(const Nan::FunctionCallbackInfo<v8::Value>& info);
 	static void Get(const Nan::FunctionCallbackInfo<v8::Value>& info);
 	static void Touch(const Nan::FunctionCallbackInfo<v8::Value>& info);
@@ -37,6 +38,7 @@ private:
 	static void MGet(const Nan::FunctionCallbackInfo<v8::Value>& info);
 	static void FetchResult(const Nan::FunctionCallbackInfo<v8::Value>& info);
 	static void MGetAndFetchAll(const Nan::FunctionCallbackInfo<v8::Value>& info);
+	static void Stop(const Nan::FunctionCallbackInfo<v8::Value>& info);
 
 	static void Debug(const Nan::FunctionCallbackInfo<v8::Value>& info);
 
@@ -44,6 +46,11 @@ private:
 public:
 	memcached_pool_st* pool;
 	bool debug;
+
+	std::set<JobBase*> jobs;
+	bool isRunning;
+
+	MemcachedAsyncProgressWorker* progressWorker;
 };
 
 };

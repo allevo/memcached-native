@@ -20,6 +20,8 @@
 #include "Job/FetchResultJob.hpp"
 #include "Job/MGetAndFetchAllJob.hpp"
 
+#include "MemcachedAsyncProgressWorker.hpp"
+
 using namespace MemcachedNative;
 
 using v8::Local;
@@ -33,9 +35,9 @@ using Nan::Callback;
 Nan::Persistent<v8::Function> Client::constructor;
 
 Client::Client(const char* config_string)
-	: debug(false)
+	: debug(false), isRunning(false)
 {
-	debug && printf("%s %s (%u)\n", "client constructor", config_string, strlen(config_string));
+	debug && printf("%s %s (%lu)\n", "client constructor", config_string, strlen(config_string));
 	this->pool = memcached_pool(config_string, strlen(config_string));
 }
 
@@ -52,6 +54,7 @@ void Client::Init(v8::Local<v8::Object> exports) {
 	tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
 	// Prototype
+	Nan::SetPrototypeMethod(tpl, "start", Start);
 	Nan::SetPrototypeMethod(tpl, "set", Set);
 	Nan::SetPrototypeMethod(tpl, "get", Get);
 	Nan::SetPrototypeMethod(tpl, "touch", Touch);
@@ -67,6 +70,7 @@ void Client::Init(v8::Local<v8::Object> exports) {
 	Nan::SetPrototypeMethod(tpl, "fetch_result", FetchResult);
 	Nan::SetPrototypeMethod(tpl, "mget_and_fetch_all", MGetAndFetchAll);
 	Nan::SetPrototypeMethod(tpl, "debug", Debug);
+	Nan::SetPrototypeMethod(tpl, "stop", Stop);
 
 	constructor.Reset(tpl->GetFunction());
 	exports->Set(Nan::New("Client").ToLocalChecked(), tpl->GetFunction());
@@ -89,8 +93,28 @@ void Client::New(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	}
 }
 
+void Client::Start(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+	Client* memClient = ObjectWrap::Unwrap<Client>(info.Holder());
+	memClient->isRunning = true;
+	memClient->progressWorker = new MemcachedAsyncProgressWorker(memClient, new Callback());
+	Nan::AsyncQueueWorker(memClient->progressWorker);
+}
+
+
+void Client::Stop(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+	Client* memClient = ObjectWrap::Unwrap<Client>(info.Holder());
+
+	CHECK_ARGUMENT_LENGTH(info, 1, "1")
+	CHECK_N_ARGS_IS_A_FUNCTION(info, 0, "0")
+	Callback* callback = new Callback(info[0].As<v8::Function>());
+
+	memClient->progressWorker->setCallback(callback);
+	memClient->isRunning = false;
+}
+
 void Client::Set(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	Client* memClient = ObjectWrap::Unwrap<Client>(info.Holder());
+
 
 	CHECK_ARGUMENT_LENGTH(info, 4, "4")
 	CHECK_N_ARGS_IS_A_STRING(info, 0, "0")
@@ -105,7 +129,8 @@ void Client::Set(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 
 	JobBase* job = new SetJob(callback, memcached_key, memcached_value, ttl);
 	job->setDebug(memClient->debug);
-	Nan::AsyncQueueWorker(new DoAsyncWorker(memClient->pool, job, callback));
+	memClient->jobs.insert(job);
+	// Nan::AsyncQueueWorker(new DoAsyncWorker(memClient->pool, job, callback));
 
 	info.GetReturnValue().Set(Nan::Undefined());
 }

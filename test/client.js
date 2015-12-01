@@ -28,6 +28,11 @@ describe('memcached', function () {
 
     beforeEach(function startMemcachedClient() {
       memcachedClient = new Client('--SERVER=' + HOST + ':' + PORT + ' --SUPPORT-CAS');
+      memcachedClient.start();
+    });
+
+    afterEach(function (done) {
+      memcachedClient.stop(done);
     });
 
     it('set should work fine', function(done) {
