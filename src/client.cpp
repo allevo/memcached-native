@@ -340,7 +340,7 @@ void Client::MGet(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 
 	std::vector<string> keys;
 	for(size_t i = 0; i < number_of_keys; i++) {
-		keys.push_back(std::string(*(v8::String::Utf8Value(arr->Get(i)->ToString()))));
+		keys.push_back(GET_STRING_FROM_PARAM(arr->Get(i)));
 	}
 
 	Callback* callback = GET_CALLBACK_FROM_PARAM(info[1]);
@@ -381,7 +381,7 @@ void Client::MGetAndFetchAll(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 
 	std::vector<string> keys;
 	for(size_t i = 0; i < number_of_keys; i++) {
-		keys.push_back(std::string(*(v8::String::Utf8Value(arr->Get(i)->ToString()))));
+		keys.push_back(GET_STRING_FROM_PARAM(arr->Get(i)));
 	}
 
 	Callback* callback = GET_CALLBACK_FROM_PARAM(info[1]);
