@@ -6,7 +6,7 @@
   "gypfile": true,
   "scripts": {
     "mocha": "./node_modules/mocha/bin/mocha test",
-    "compile": "node-gyp configure && node-gyp build",
+    "compile": "rm -rf build && node-gyp configure && node-gyp build",
     "build-travis": "rm -rf build && npm install && npm test",
     "test": "npm run compile && npm run mocha"
   },

@@ -15,15 +15,17 @@ describe('benchmark', function () {
     memcachedClient = new Client('--SERVER=' + HOST + ':' + PORT + ' --SUPPORT-CAS');
     memcachedClient.start();
   });
-  afterEach(function(done) {
+
+  afterEach(function (done) {
     memcachedClient.stop(done);
   });
+
   describe('serie', function () {
     function getSetSerieWrapper(n, fn, done) {
       var i = 0;
       return function set() {
         i++;
-        if (i >= n) return done();
+        if (i > n) return done();
         fn(function(err) {
           assert.ifError(err);
           set();

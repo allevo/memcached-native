@@ -7,7 +7,7 @@ namespace MemcachedNative {
 
 class GetJob : public JobBase {
 public:
-	explicit GetJob(Callback* callback_, char* key_)
+	explicit GetJob(Callback* callback_, const string key_)
 		: JobBase(callback_), key(key_), value(NULL) { }
 
 	virtual void execute(memcached_st* mem) {
@@ -15,14 +15,14 @@ public:
 
 		uint32_t flags = 0;
 		size_t value_length= 0;
-		value = memcached_get(mem, key, strlen(key), &value_length, &flags, &rc);
+		value = memcached_get(mem, key.c_str(), key.size(), &value_length, &flags, &rc);
 
 		this->debug && printf("%s %s %d %zu\n", "GetJob executed", value, flags, value_length);
 	}
 
 	virtual ~GetJob() {
 		this->debug && printf("%s\n", "GetJob deconstructor");
-		delete key;
+		// delete value;
 	}
 
 	virtual Local<Value> getResult() {
@@ -33,7 +33,7 @@ public:
 	}
 
 private:
-	char* key;
+	const string key;
 	char* value;
 };
 

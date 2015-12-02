@@ -25,17 +25,20 @@ describe('memcached', function () {
         done();
       });
     });
+
     beforeEach(function startMemcachedClient() {
       memcachedClient = new Client('--SERVER=' + HOST + ':' + PORT + ' --SUPPORT-CAS');
       memcachedClient.start();
     });
-    afterEach(function stopMemcachedClient(done) {
+
+    afterEach(function (done) {
       memcachedClient.stop(done);
     });
 
     it('set should work fine', function(done) {
       var key = getRandomString();
       var value = getRandomString();
+
       memcachedClient.set(key, value, 10, function(err) {
         assert.ifError(err);
 
@@ -104,7 +107,7 @@ describe('memcached', function () {
               assert.ifError(err)
               assert.equal(23 + 40, res);
 
-              done();
+              setTimeout(done);
             });
           });
         }, 10);

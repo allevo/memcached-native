@@ -7,18 +7,17 @@ namespace MemcachedNative {
 
 class TouchJob : public JobBase {
 public:
-	explicit TouchJob(Callback* callback_, char* key_, time_t ttl_)
+	explicit TouchJob(Callback* callback_, const string key_, time_t ttl_)
 		: JobBase(callback_), key(key_), ttl(ttl_) { }
 
 	virtual void execute(memcached_st* mem) {
-		this->debug && printf("%s %s (%zu) [%ld s]\n", "TouchJob execute", key, strlen(key), (long int) ttl);
+		this->debug && printf("%s %s (%zu) [%ld s]\n", "TouchJob execute", key.c_str(), key.size(), (long int) time(0) + ttl);
 
-		rc = memcached_touch(mem, key, strlen(key), ttl);
+		rc = memcached_touch(mem, key.c_str(), key.size(), time(0) + ttl);
 	}
 
 	virtual ~TouchJob() {
 		this->debug && printf("%s\n", "TouchJob deconstructor");
-		delete key;
 	}
 
 	virtual Local<Value> getResult() {
@@ -26,7 +25,7 @@ public:
 	}
 
 private:
-	char* key;
+	const string key;
 	time_t ttl;
 };
 

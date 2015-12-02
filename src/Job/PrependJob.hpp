@@ -8,18 +8,16 @@ namespace MemcachedNative {
 
 class PrependJob : public JobBase {
 public:
-	explicit PrependJob(Callback* callback_, char* key_, char* value_)
+	explicit PrependJob(Callback* callback_, const string key_, const string value_)
 		: JobBase(callback_), key(key_), value(value_) { }
 
 	virtual void execute(memcached_st* mem) {
-		this->debug && printf("%s %s (%zu): %s (%zu)\n", "PrependJob execute", key, strlen(key), value, strlen(value));
-		rc = memcached_prepend(mem, key, strlen(key), value, strlen(value), 0, (uint32_t)0);
+		this->debug && printf("%s %s (%zu): %s (%zu)\n", "PrependJob execute", key.c_str(), key.size(), value.c_str(), value.size());
+		rc = memcached_prepend(mem, key.c_str(), key.size(), value.c_str(), value.size(), 0, (uint32_t)0);
 	}
 
 	virtual ~PrependJob() {
 		this->debug && printf("%s\n", "PrependJob deconstructor");
-		delete key;
-		delete value;
 	}
 
 	virtual Local<Value> getResult() {
@@ -27,8 +25,8 @@ public:
 	}
 
 private:
-	char* key;
-	char* value;
+	const string key;
+	const string value;
 };
 
 };

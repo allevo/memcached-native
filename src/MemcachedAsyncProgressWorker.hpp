@@ -8,6 +8,7 @@
 #include <libmemcached/memcached.h>
 
 #include "Job/Base.hpp"
+#include "utils.hpp"
 
 using v8::Local;
 using v8::Value;
@@ -23,24 +24,29 @@ class Client;
 
 class MemcachedAsyncProgressWorker : public AsyncProgressWorker {
 public:
-	explicit MemcachedAsyncProgressWorker(Client* client_, Callback* callback_, const char* config_string_) :
+	explicit MemcachedAsyncProgressWorker(Client* client_, Callback* callback_) :
 		AsyncProgressWorker(callback_),
 		client(client_),
 		debug(false),
-		config_string(config_string_)
+		config_string(NULL)
 	{
 		debug && printf("%s\n", "CREATE MemcachedAsyncProgressWorker");
 	}
 
 	virtual void Execute(const ExecutionProgress& progress) {
-		debug && printf("%s\n", "Execute MemcachedAsyncProgressWorker");
-
-		memcached_st* memcacheClient = memcached(config_string, strlen(config_string));
+		memcached_return_t rc;
+		struct timespec tSpec = { time(0) + 10, 0 };
+		// TODO: CHECK rc;
+		memcached_st* memcacheClient = memcached_pool_fetch(client->pool, &tSpec, &rc); // memcached(config_string, strlen(config_string));
 		while(client->isRunning) {
 			usleep(100);
+
+			debug && printf("%s %lu\n", "Jobs count: ", client->jobs.size());
 			for(std::set<JobBase*>::iterator ii = client->jobs.begin(); ii != client->jobs.end(); ii++) {
 				JobBase* current = *ii;
+
 				if (current->isDone) continue;
+				debug && printf("%s %p %i\n", "Current job is placed at", current, current->isDone);
 
 				current->execute(memcacheClient);
 				current->isDone = true;
@@ -48,12 +54,11 @@ public:
 			progress.Send(NULL, 0);
 		}
 
-		// Is it safe here?
-		memcached_free(memcacheClient);
+		memcached_pool_push(client->pool, memcacheClient);
 	}
 
 	virtual void HandleProgressCallback(const char *data, size_t size) {
-		// printf("%s\n", "HandleProgressCallback MemcachedAsyncProgressWorker");
+		debug && printf("%s %lu\n", "HandleProgressCallback MemcachedAsyncProgressWorker", client->jobs.size());
 	    Nan::HandleScope scope;
 
 		std::set<JobBase*>::iterator ii = client->jobs.begin();

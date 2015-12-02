@@ -9,8 +9,8 @@ namespace MemcachedNative {
 
 class MGetAndFetchAllJob : public MGetJob, public FetchResultJob {
 public:
-	explicit MGetAndFetchAllJob(Callback* callback_, char** keys_, size_t number_of_keys_)
-		: JobBase(callback_), MGetJob(callback_, keys_, number_of_keys_), FetchResultJob(callback_) { }
+	explicit MGetAndFetchAllJob(Callback* callback_, std::vector<string> keys_)
+		: JobBase(callback_), MGetJob(callback_, keys_), FetchResultJob(callback_) { }
 
 	virtual void execute(memcached_st* mem) {
 		MGetJob::execute(mem);

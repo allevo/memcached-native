@@ -4,6 +4,10 @@
 #include <nan.h>
 #include <libmemcached/memcached.h>
 
+#include <string>
+
+using std::string;
+
 using v8::Local;
 using v8::Value;
 using v8::Exception;

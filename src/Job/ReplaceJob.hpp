@@ -8,18 +8,16 @@ namespace MemcachedNative {
 
 class ReplaceJob : public JobBase {
 public:
-	explicit ReplaceJob(Callback* callback_, char* key_, char* value_, time_t ttl_)
+	explicit ReplaceJob(Callback* callback_, const string key_, const string value_, time_t ttl_)
 		: JobBase(callback_), key(key_), value(value_), ttl(ttl_) { }
 
 	virtual void execute(memcached_st* mem) {
-		this->debug && printf("%s %s (%zu): %s (%zu) [%ld s] \n", "ReplaceJob execute", key, strlen(key), value, strlen(value), (long int) ttl);
-		rc = memcached_replace(mem, key, strlen(key), value, strlen(value), ttl, (uint32_t)0);
+		this->debug && printf("%s %s (%zu): %s (%zu) [%ld s] \n", "ReplaceJob execute", key.c_str(), key.size(), value.c_str(), value.size(), (long int) ttl);
+		rc = memcached_replace(mem, key.c_str(), key.size(), value.c_str(), value.size(), ttl, (uint32_t)0);
 	}
 
 	virtual ~ReplaceJob() {
 		this->debug && printf("%s\n", "ReplaceJob deconstructor");
-		delete key;
-		delete value;
 	}
 
 	virtual Local<Value> getResult() {
@@ -27,8 +25,8 @@ public:
 	}
 
 private:
-	char* key;
-	char* value;
+	const string key;
+	const string value;
 	time_t ttl;
 };
 

@@ -99,14 +99,13 @@ void CheckConfiguration(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	CHECK_ARGUMENT_LENGTH(info, 1, "1")
 	CHECK_N_ARGS_IS_A_STRING(info, 0, "0");
 
-	char* conf = getCharsFromParam(info[0]->ToString());
+	string conf = GET_STRING_FROM_PARAM(info[0]);
 
 	char errorBuffer[2048];
-	memcached_return_t rc = libmemcached_check_configuration(conf, strlen(conf), errorBuffer, sizeof(errorBuffer));
+	memcached_return_t rc = libmemcached_check_configuration(conf.c_str(), conf.size(), errorBuffer, sizeof(errorBuffer));
 	if (!memcached_success(rc)) {
 		Nan::ThrowError(errorBuffer);
 	}
-	delete conf;
 
 	info.GetReturnValue().Set(Nan::Undefined());
 }
