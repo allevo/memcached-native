@@ -1,0 +1,37 @@
+{
+  "name": "memcached-native",
+  "version": "1.0.0",
+  "description": "Nodejs memcache native library",
+  "main": "index.js",
+  "gypfile": true,
+  "scripts": {
+    "mocha": "./node_modules/mocha/bin/mocha test",
+    "compile": "rm -rf build && node-gyp configure && node-gyp build",
+    "build-travis": "rm -rf build && npm --no-bin-links install && npm test",
+    "test": "npm run compile && npm run mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/allevo/memcached-native.git"
+  },
+  "author": "allevo",
+  "license": "MIT",
+  "dependencies": {
+    "nan": "^2.0.9"
+  },
+  "keywords": [
+    "memcached",
+    "memcache",
+    "cache",
+    "membase",
+    "nosql",
+    "native"
+  ],
+  "devDependencies": {
+    "async": "^1.4.2",
+    "istanbul": "^0.3.21",
+    "lodash": "^3.10.1",
+    "mocha": "^2.3.3",
+    "oa-ascync": "^1.0.0"
+  }
+}
