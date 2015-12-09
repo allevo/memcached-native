@@ -42,15 +42,18 @@ describe('memcached', function () {
       memcachedClient.set(key, value, 10, function(err) {
         assert.ifError(err);
 
-        getAllItems(function(err, items) {
+        memcachedClient.get(key, function(err, val) {
           assert.ifError(err);
+          assert.equal(val, value);
 
-          var diff = items[key].s - Math.round(Date.now() / 1000);
-          assert.ok(diff < 11, 'Diff too high ' + diff);
-          assert.ok(diff > 5, 'Diff too low ' + diff);
-          assert.equal(items[key].value, value);
+          getAllItems(function(err, items) {
 
-          done();
+            var diff = items[key].s - Math.round(Date.now() / 1000);
+            assert.ok(diff < 11, 'Diff too high ' + diff);
+            assert.ok(diff > 5, 'Diff too low ' + diff);
+
+            done();
+          });
         });
       });
     });
