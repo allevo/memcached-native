@@ -1,7 +1,6 @@
 'use strict';
 
 var assert = require('assert');
-var spawn = require('child_process').spawn;
 var net = require('net');
 
 var Client = require('../index').Client;
@@ -13,7 +12,6 @@ var getAllItems = helper.getAllItems;
 var PORT = helper.getMemcachePort();
 var HOST = helper.getMemcacheHost();
 
-var memcachedServerProcess;
 var memcachedClient;
 describe('memcached', function () {
   describe('client', function () {
@@ -82,6 +80,7 @@ describe('memcached', function () {
 
         setTimeout(function() {
           memcachedClient.touch(key, 200, function(err) {
+            assert.ifError(err);
 
             getAllItems(function(err, items) {
               assert.ifError(err);
@@ -107,7 +106,7 @@ describe('memcached', function () {
             assert.equal(23 + 40, finalValue);
 
             memcachedClient.get(key, function(err, res) {
-              assert.ifError(err)
+              assert.ifError(err);
               assert.equal(23 + 40, res);
 
               setTimeout(done);
@@ -128,7 +127,7 @@ describe('memcached', function () {
             assert.equal(23 - 3, finalValue);
 
             memcachedClient.get(key, function(err, res) {
-              assert.ifError(err)
+              assert.ifError(err);
               assert.equal(23 - 3, res);
 
               done();
@@ -148,7 +147,7 @@ describe('memcached', function () {
           assert.ifError(err);
 
           memcachedClient.get(key, function(err, res) {
-            assert.ifError(err)
+            assert.ifError(err);
 
             assert.equal(value + '-suffix', res);
 
@@ -168,7 +167,7 @@ describe('memcached', function () {
           assert.ifError(err);
 
           memcachedClient.get(key, function(err, res) {
-            assert.ifError(err)
+            assert.ifError(err);
 
             assert.equal('prefix-' + value, res);
 
@@ -187,10 +186,11 @@ describe('memcached', function () {
         memcachedClient.delete(key, 0, function(err) {
           assert.ifError(err);
 
-          memcachedClient.get(key, function(err, res) {
+          memcachedClient.get(key, function(err, data) {
             assert.equal(err.message, 'NOT FOUND');
             assert.equal(err.code, 'NOT FOUND');
             assert.equal(err.errno, require('../index').MEMCACHED_NOTFOUND);
+            assert.equal('', data);
 
             done();
           });
