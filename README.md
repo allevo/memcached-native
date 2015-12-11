@@ -1,6 +1,5 @@
 # memcached-native
-[![Build Status](https://travis-ci.org/allevo/memcached-native.svg)](https://travis-ci.org/allevo/memcached-native)
-
+[![Build Status](https://travis-ci.org/allevo/memcached-native.svg?branch=master)](https://travis-ci.org/allevo/memcached-native)
 This package wraps the library for memcache written in C.
 
 ## Client
